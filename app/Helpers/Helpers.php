@@ -4,7 +4,8 @@ namespace App\Helpers;
 
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
-
+use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Storage;
 class Helpers
 {
   public static function appClasses()
@@ -202,11 +203,11 @@ class Helpers
 
   public static function updatePageConfig($pageConfigs)
   {
-    $demo = 'custom';
+    $edu = 'custom';
     if (isset($pageConfigs)) {
       if (count($pageConfigs) > 0) {
         foreach ($pageConfigs as $config => $val) {
-          Config::set('custom.' . $demo . '.' . $config, $val);
+          Config::set('custom.' . $edu . '.' . $config, $val);
         }
       }
     }

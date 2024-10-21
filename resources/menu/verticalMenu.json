@@ -140,6 +140,25 @@
       ]
     },
     {
+      "name": "Categories",
+      "icon": "menu-icon tf-icons ti ti-news",
+      "slug": "app-categories",
+      "permission": "manage Categories",
+      "submenu": [
+        {
+          "url": "dashboard/categories",
+          "name": "All categories",
+          "slug": "app-categories-all"
+        },
+        {
+          "url": "dashboard/categories/create",
+          "name": "Add New categories",
+          "slug": "app-categories-create"
+        }
+      ]
+    },
+
+    {
       "name": "News",
       "icon": "menu-icon tf-icons ti ti-news",
       "slug": "app-news",
@@ -193,13 +212,45 @@
       "name": "Settings",
       "icon": "menu-icon tf-icons ti ti-settings",
       "slug": "app-settings",
-      "permission": "manage settings", 
+      "permission": "manage settings",
       "submenu": [
         {
           "url": "dashboard/settings",
           "name": "General",
           "slug": "app-settings-general"
         }
+      ]
+    },
+    {
+      "name": "Sitemap",
+      "icon": "menu-icon tf-icons ti ti-sitemap",
+      "slug": "app-sitemap",
+      "permission": "manage sitemap",
+      "submenu": [
+        {
+          "url": "dashboard/sitemap",
+          "name": "General",
+          "slug": "app-sitemap-general"
+        },
+        {
+          "url": "dashboard/sitemap/manage",
+          "name": "manage",
+          "slug": "app-sitemap-manage"
+        }
+      ]
+    },
+    {
+      "name": "calendar",
+      "icon": "menu-icon tf-icons ti ti-building",
+      "slug": "app-calendar",
+      "permission": "manage calendar",
+      "submenu": [
+        {
+          "url": "dashboard/calendar",
+          "name": "calendar",
+          "slug": "app-calendar-all"
+        }
+
       ]
     }
   ]

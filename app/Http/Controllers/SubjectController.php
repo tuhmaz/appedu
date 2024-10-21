@@ -14,19 +14,19 @@ class SubjectController extends Controller
 
         switch ($country) {
             case 'jordan':
-                $connection = 'mysql';
+                $connection = 'jo';
                 break;
             case 'saudi':
-                $connection = 'subdomain1';
+                $connection = 'sa';
                 break;
             case 'egypt':
-                $connection = 'subdomain2';
+                $connection = 'eg';
                 break;
             case 'palestine':
-                $connection = 'subdomain3';
+                $connection = 'ps';
                 break;
             default:
-                $connection = 'mysql';
+                $connection = 'jo';
         }
 
         $subjects = Subject::on($connection)->with('schoolClass')->get();
@@ -43,19 +43,19 @@ class SubjectController extends Controller
 
         switch ($country) {
             case 'jordan':
-                $connection = 'mysql';
+                $connection = 'jo';
                 break;
             case 'saudi':
-                $connection = 'subdomain1';
+                $connection = 'sa';
                 break;
             case 'egypt':
-                $connection = 'subdomain2';
+                $connection = 'eg';
                 break;
             case 'palestine':
-                $connection = 'subdomain3';
+                $connection = 'ps';
                 break;
             default:
-                $connection = 'mysql';
+                $connection = 'jo';
         }
 
         $classes = SchoolClass::on($connection)->get();
@@ -73,19 +73,19 @@ class SubjectController extends Controller
         $country = $request->input('country', 'jordan');
         switch ($country) {
             case 'jordan':
-                $connection = 'mysql';
+                $connection = 'jo';
                 break;
             case 'saudi':
-                $connection = 'subdomain1';
+                $connection = 'sa';
                 break;
             case 'egypt':
-                $connection = 'subdomain2';
+                $connection = 'eg';
                 break;
             case 'palestine':
-                $connection = 'subdomain3';
+                $connection = 'ps';
                 break;
             default:
-                $connection = 'mysql';
+                $connection = 'jo';
         }
 
         Subject::on($connection)->create([
@@ -107,19 +107,19 @@ class SubjectController extends Controller
 
         switch ($country) {
             case 'jordan':
-                $connection = 'mysql';
+                $connection = 'jo';
                 break;
             case 'saudi':
-                $connection = 'subdomain1';
+                $connection = 'sa';
                 break;
             case 'egypt':
-                $connection = 'subdomain2';
+                $connection = 'eg';
                 break;
             case 'palestine':
-                $connection = 'subdomain3';
+                $connection = 'ps';
                 break;
             default:
-                $connection = 'mysql';
+                $connection = 'jo';
         }
 
         $subject = Subject::on($connection)->findOrFail($id);
@@ -138,19 +138,19 @@ class SubjectController extends Controller
         $country = $request->input('country', 'jordan');
         switch ($country) {
             case 'jordan':
-                $connection = 'mysql';
+                $connection = 'jo';
                 break;
             case 'saudi':
-                $connection = 'subdomain1';
+                $connection = 'sa';
                 break;
             case 'egypt':
-                $connection = 'subdomain2';
+                $connection = 'eg';
                 break;
             case 'palestine':
-                $connection = 'subdomain3';
+                $connection = 'ps';
                 break;
             default:
-                $connection = 'mysql';
+                $connection = 'jo';
         }
 
         $subject->setConnection($connection)->update([
@@ -167,19 +167,19 @@ class SubjectController extends Controller
 
         switch ($country) {
             case 'jordan':
-                $connection = 'mysql';
+                $connection = 'jo';
                 break;
             case 'saudi':
-                $connection = 'subdomain1';
+                $connection = 'sa';
                 break;
             case 'egypt':
-                $connection = 'subdomain2';
+                $connection = 'eg';
                 break;
             case 'palestine':
-                $connection = 'subdomain3';
+                $connection = 'ps';
                 break;
             default:
-                $connection = 'mysql';
+                $connection = 'jo';
         }
 
         $subject = Subject::on($connection)->findOrFail($id);

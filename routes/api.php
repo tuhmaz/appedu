@@ -8,7 +8,7 @@ use App\Http\Controllers\ImageUploadController;
 // Open Routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
- 
+
 // Protected Routes
 Route::group(['middleware' => 'auth:sanctum'], function () {
   Route::get('/profile', [AuthController::class, 'profile']);

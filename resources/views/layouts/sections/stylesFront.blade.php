@@ -7,13 +7,11 @@
 @vite([
   'resources/assets/vendor/scss'.$configData['rtlSupport'].'/core' .($configData['style'] !== 'light' ? '-' . $configData['style'] : '') .'.scss',
   'resources/assets/vendor/scss'.$configData['rtlSupport'].'/' .$configData['theme'] .($configData['style'] !== 'light' ? '-' . $configData['style'] : '') .'.scss',
-  'resources/assets/css/demo.css',
-  'resources/assets/vendor/libs/node-waves/node-waves.scss',
+  'resources/assets/css/edu.css',
+ 
   'resources/assets/vendor/scss/pages/front-page.scss'
 ])
 
 @yield('vendor-style')
 
 @yield('page-style')
-
-

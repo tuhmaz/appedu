@@ -3,10 +3,8 @@ $configData = Helper::appClasses();
 use Detection\MobileDetect;
 $detect = new MobileDetect;
 
-// الحصول على معلومات الاتصال بقاعدة البيانات من الجلسة أو الاتصال الافتراضي
-$database = session('database', 'mysql');
+$database = session('database', 'jo');
 
-// تحديد العنوان الديناميكي بناءً على المادة والصف والسمستر
 $pageTitle = $article->title;
 @endphp
 
@@ -19,15 +17,11 @@ $pageTitle = $article->title;
 @endsection
 
 @section('meta')
-<!-- Meta Keywords (Optional) -->
 <meta name="keywords" content="{{ implode(',', $article->keywords->pluck('keyword')->toArray()) }}">
 
-<!-- Meta Description (Important for SEO) -->
 <meta name="description" content="{{ $article->meta_description }}">
 
-<!-- Canonical URL -->
 <link rel="canonical" href="{{ url()->current() }}">
-<!-- Open Graph Tags -->
 <meta property="og:title" content="{{ $article->title }}" />
 <meta property="og:description" content="{{ $article->meta_description }}" />
 <meta property="og:type" content="article" />
@@ -40,25 +34,23 @@ $pageTitle = $article->title;
 <meta property="article:published_time" content="{{ $article->created_at->toIso8601String() }}" />
 <meta property="article:modified_time" content="{{ $article->updated_at->toIso8601String() }}" />
 @if ($author)
-    <meta property="article:author" content="{{ $author->name }}" />
+<meta property="article:author" content="{{ $author->name }}" />
 @else
-    <meta property="article:author" content="Unknown Author" />
+<meta property="article:author" content="Unknown Author" />
 @endif
 
 <meta property="article:section" content="{{ $subject->subject_name }}" />
 <meta property="article:tag" content="{{ implode(',', $article->keywords->pluck('keyword')->toArray()) }}" />
 
-<!-- X (Twitter) Card Tags -->
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="{{ $article->title }}" />
 <meta name="twitter:description" content="{{ $article->meta_description }}" />
 <meta name="twitter:image" content="{{ $article->image_url ?? asset('assets/img/front-pages/icons/articles_default_image.jpg') }}" />
-<meta name="twitter:site" content="@YourTwitterHandle" />
-<!-- Twitter Card Meta Tag for the Author -->
+<meta name="twitter:site" content="{{ config('settings.twitter') }}" />
 @if ($author && $author->twitter_handle)
-    <meta name="twitter:creator" content="{{ $author->twitter_handle }}" />
+<meta name="twitter:creator" content="{{ $author->twitter_handle }}" />
 @else
-    <meta name="twitter:creator" content="@YourDefaultTwitterHandle" />
+<meta name="twitter:creator" content="@YourDefaultTwitterHandle" />
 @endif
 @endsection
 
@@ -72,17 +64,6 @@ $pageTitle = $article->title;
 </section>
 
 
-<div class="container mt-4 mb-4">
-  @if(config('settings.google_ads_desktop_article') || config('settings.google_ads_mobile_article'))
-  <div class="ads-container text-center">
-    @if($detect->isMobile())
-    {!! config('settings.google_ads_mobile_article') !!}
-    @else
-    {!! config('settings.google_ads_desktop_article') !!}
-    @endif
-  </div>
-  @endif
-</div>
 
 
 <div class="container px-4 mt-4">
@@ -93,20 +74,20 @@ $pageTitle = $article->title;
       </a>
     </li>
     <li class="breadcrumb-item">
-      <a href="{{ route('class.index') }}">{{ __('Classes') }}</a>
+      <a href="{{ route('class.index', ['database' => $database ?? session('database', 'default_database')]) }}">{{ __('Classes') }}</a>
     </li>
     <li class="breadcrumb-item">
-      <a href="{{ route('frontend.class.show', ['id' => $subject->schoolClass->id]) }}">
+      <a href="{{ route('frontend.class.show', ['database' => $database ?? session('database', 'default_database'),'id' => $subject->schoolClass->id]) }}">
         {{ $subject->schoolClass->grade_name }}
       </a>
     </li>
     <li class="breadcrumb-item">
-      <a href="{{ route('frontend.subjects.show', ['subject' => $subject->id]) }}">
+      <a href="{{ route('frontend.subjects.show', ['database' => $database ?? session('database', 'default_database'),'subject' => $subject->id]) }}">
         {{ $subject->subject_name }}
       </a>
     </li>
     <li class="breadcrumb-item">
-      <a href="{{ route('frontend.subject.articles', ['subject' => $subject->id, 'semester' => $semester->id, 'category' => $category]) }}">
+      <a href="{{ route('frontend.subject.articles', ['database' => $database ?? session('database', 'default_database'),'subject' => $subject->id, 'semester' => $semester->id, 'category' => $category]) }}">
         {{ __($category) }} - {{ $semester->semester_name }}
       </a>
     </li>
@@ -117,13 +98,24 @@ $pageTitle = $article->title;
   </div>
 </div>
 
-<!-- Article Content Section -->
 <section class="section-py bg-body first-section-pt" style="padding-top: 10px;">
+
+  <div class="container mt-4 mb-4">
+    @if(config('settings.google_ads_desktop_article') || config('settings.google_ads_mobile_article'))
+    <div class="ads-container text-center">
+      @if($detect->isMobile())
+      {!! config('settings.google_ads_mobile_article') !!}
+      @else
+      {!! config('settings.google_ads_desktop_article') !!}
+      @endif
+    </div>
+    @endif
+  </div>
   <div class="container">
     <div class="card px-3 mt-6">
       <div class="row">
         <div class="content-header text-center bg-primary py-3">
-          <h2 class="text-white">{{ $article->title }}</h2> <!-- H2 للعنوان -->
+          <h2 class="text-white">{{ $article->title }}</h2>
         </div>
 
         <div class="content-body text-center mt-3">
@@ -224,55 +216,41 @@ $pageTitle = $article->title;
 
           <div class="card mb-4 p-3">
             <div class="card-text">
-              <div class="container mt-4 mb-4">
-                @if(config('settings.google_ads_desktop_article_2') || config('settings.google_ads_mobile_article_2'))
-                <div class="ads-container text-center">
-                  @if($detect->isMobile())
-                  {!! config('settings.google_ads_mobile_article_2') !!}
-                  @else
-                  {!! config('settings.google_ads_desktop_article_2') !!}
-                  @endif
-                </div>
-                @endif
-              </div>
+
               @php
-// اختيار الصورة الافتراضية بناءً على قاعدة البيانات (الدولة) المختارة
-switch($database) {
-    case 'subdomain1': // قاعدة بيانات السعودية
-        $defaultImageUrl = asset('assets/img/front-pages/icons/articles_saudi_image.jpg');
-        break;
-    case 'subdomain2': // قاعدة بيانات مصر
-        $defaultImageUrl = asset('assets/img/front-pages/icons/articles_egypt_image.jpg');
-        break;
-    case 'subdomain3': // قاعدة بيانات فلسطين
-        $defaultImageUrl = asset('assets/img/front-pages/icons/articles_palestine_image.jpg');
-        break;
-    default:
-        $defaultImageUrl = asset('assets/img/front-pages/icons/articles_default_image.jpg');
-        break;
-}
-@endphp
+              switch($database) {
+              case 'sa':
+              $defaultImageUrl = asset('assets/img/front-pages/icons/articles_saudi_image.jpg');
+              break;
+              case 'eg':
+              $defaultImageUrl = asset('assets/img/front-pages/icons/articles_egypt_image.jpg');
+              break;
+              case 'ps':
+              $defaultImageUrl = asset('assets/img/front-pages/icons/articles_palestine_image.jpg');
+              break;
+              default:
+              $defaultImageUrl = asset('assets/img/front-pages/icons/articles_default_image.jpg');
+              break;
+              }
+              @endphp
 
-@php
-if (!function_exists('insertDefaultImageIfNeeded')) {
-    function insertDefaultImageIfNeeded($content, $defaultImageUrl, $articleTitle) {
-        // البحث عن تواجد صورة داخل المحتوى
-        preg_match('/<img[^>]+src="([^">]+)"/', $content, $matches);
+              @php
+              if (!function_exists('insertDefaultImageIfNeeded')) {
+              function insertDefaultImageIfNeeded($content, $defaultImageUrl, $articleTitle) {
+              preg_match('/<img[^>]+src="([^">]+)"/', $content, $matches);
 
-        // إذا لم توجد صورة، إضافة الصورة الافتراضية
-        if (!isset($matches[1])) {
-            $content = '<img src="' . $defaultImageUrl . '" alt="' . e($articleTitle) . '" class="article-default-image" style="max-width:100%; height:auto;">' . $content;
-        }
+                if (!isset($matches[1])) {
+                $content = '<img src="' . $defaultImageUrl . '" alt="' . e($articleTitle) . '" class="article-default-image" style="max-width:100%; height:auto;">' . $content;
+                }
 
-        return $content;
-    }
-}
+                return $content;
+                }
+                }
 
-// التحقق من وجود المحتوى وعنوان المقالة
-if (isset($article) && isset($article->content) && isset($article->title)) {
-    $articleContent = insertDefaultImageIfNeeded($article->content, $defaultImageUrl, $article->title);
-}
-@endphp
+                if (isset($article) && isset($article->content) && isset($article->title)) {
+                $articleContent = insertDefaultImageIfNeeded($article->content, $defaultImageUrl, $article->title);
+                }
+                @endphp
 
 
 
@@ -301,10 +279,21 @@ if (isset($article) && isset($article->content) && isset($article->title)) {
                 <div class="article-content">
 
                   {!! $articleContent !!}
+                  <div class="container mt-4 mb-4">
+                    @if(config('settings.google_ads_desktop_article_2') || config('settings.google_ads_mobile_article_2'))
+                    <div class="ads-container text-center">
+                      @if($detect->isMobile())
+                      {!! config('settings.google_ads_mobile_article_2') !!}
+                      @else
+                      {!! config('settings.google_ads_desktop_article_2') !!}
+                      @endif
+                    </div>
+                    @endif
+                  </div>
 
 
                   @foreach($article->keywords as $keyword)
-                  <a href="{{ route('articles.indexByKeyword', ['keywords' => $keyword->keyword]) }}">{{ $keyword->keyword }}</a>
+                  <a href="{{ route('keywords.indexByKeyword', ['database' => $database,'keywords' => $keyword->keyword]) }}">{{ $keyword->keyword }}</a>
                   @endforeach
                 </div>
 
@@ -319,10 +308,11 @@ if (isset($article) && isset($article->content) && isset($article->title)) {
           @foreach ($article->files as $file)
           <div class="divider divider-danger">
             <div class="divider-text">
-              <a href="{{ route('files.download', ['id' => $file->id]) }}" class="btn btn-outline-danger">
+              <a href="{{ route('download.page', ['file' => $file->id]) }}" class="btn btn-outline-danger" target="_blank">
                 {{ __('download') }}
               </a>
             </div>
+
           </div>
           @endforeach
 
@@ -434,37 +424,34 @@ if (isset($article) && isset($article->content) && isset($article->title)) {
 </section>
 
 @php
-// اختيار الصورة الافتراضية بناءً على قاعدة البيانات المختارة (الدولة)
-$country = session('database', 'jordan'); // تعيين البلد الافتراضي إلى الأردن في حالة عدم وجود قاعدة بيانات مختارة
+$country = session('database', 'jordan');
 
 switch($country) {
-    case 'subdomain1': // قاعدة بيانات السعودية
-        $defaultImageUrl = asset('assets/img/front-pages/icons/articles_saudi_image.jpg');
-        break;
-    case 'subdomain2': // قاعدة بيانات مصر
-        $defaultImageUrl = asset('assets/img/front-pages/icons/articles_egypt_image.jpg');
-        break;
-    case 'subdomain3': // قاعدة بيانات فلسطين
-        $defaultImageUrl = asset('assets/img/front-pages/icons/articles_palestine_image.jpg');
-        break;
-    default:
-        $defaultImageUrl = asset('assets/img/front-pages/icons/articles_default_image.jpg');
-        break;
+case 'sa':
+$defaultImageUrl = asset('assets/img/front-pages/icons/articles_saudi_image.jpg');
+break;
+case 'eg':
+$defaultImageUrl = asset('assets/img/front-pages/icons/articles_egypt_image.jpg');
+break;
+case 'ps':
+$defaultImageUrl = asset('assets/img/front-pages/icons/articles_palestine_image.jpg');
+break;
+default:
+$defaultImageUrl = asset('assets/img/front-pages/icons/articles_default_image.jpg');
+break;
 }
 
-// تحديث الدالة لجلب الصورة بناءً على وجودها أو استخدام الصورة الافتراضية بناءً على البلد
 if (!function_exists('getFirstImageFromContent')) {
-    function getFirstImageFromContent($content, $defaultImageUrl) {
-        preg_match('/<img[^>]+src="([^">]+)"/', $content, $matches);
-        return $matches[1] ?? $defaultImageUrl;
-    }
-}
+function getFirstImageFromContent($content, $defaultImageUrl) {
+preg_match('/<img[^>]+src="([^">]+)"/', $content, $matches);
+  return $matches[1] ?? $defaultImageUrl;
+  }
+  }
 
-$firstImageUrl = getFirstImageFromContent($article->content, $defaultImageUrl);
-@endphp
+  $firstImageUrl = getFirstImageFromContent($article->content, $defaultImageUrl);
+  @endphp
 
-<!-- Schema Markup for Article -->
-<script type="application/ld+json">
+  <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "Article",
@@ -485,7 +472,7 @@ $firstImageUrl = getFirstImageFromContent($article->content, $defaultImageUrl);
         "name": "{{ config('settings.site_name') ? config('settings.site_name') : 'site_name' }}",
         "logo": {
           "@type": "ImageObject",
-          "url": "{{ config('settings.site_logo') ? config('settings.site_logo') : 'site_logo' }}"
+          "url": "{{ asset('storage/' . config('settings.site_logo')) }}"
         }
       },
       "image": {
@@ -495,10 +482,9 @@ $firstImageUrl = getFirstImageFromContent($article->content, $defaultImageUrl);
         "height": 600
       }
     }
-</script>
+  </script>
 
-<!-- Schema Markup for Breadcrumbs -->
-<script type="application/ld+json">
+  <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
@@ -512,13 +498,13 @@ $firstImageUrl = getFirstImageFromContent($article->content, $defaultImageUrl);
           "@type": "ListItem",
           "position": 2,
           "name": "{{ __('Classes') }}",
-          "item": "{{ route('class.index') }}"
+          "item": "{{ route('class.index', ['database' => $database ?? session('database', 'default_database')]) }}"
         },
         {
           "@type": "ListItem",
           "position": 3,
           "name": "{{ $subject->subject_name }}",
-          "item": "{{ route('frontend.subjects.show', ['subject' => $subject->id]) }}"
+          "item": "{{ route('frontend.subjects.show', ['database' => $database ?? session('database', 'default_database'),'subject' => $subject->id]) }}"
         },
         {
           "@type": "ListItem",
@@ -528,6 +514,6 @@ $firstImageUrl = getFirstImageFromContent($article->content, $defaultImageUrl);
         }
       ]
     }
-</script>
+  </script>
 
   @endsection

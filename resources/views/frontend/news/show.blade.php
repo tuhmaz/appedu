@@ -4,49 +4,55 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Models\News;
 use Detection\MobileDetect;
+
 $detect = new MobileDetect;
 
-$randomNews = News::where('category', $news->category)
-    ->where('id', '!=', $news->id)
-    ->inRandomOrder()
-    ->take(5)
-    ->get();
+
+// Fetch random news items from the selected database
+$randomNews = \App\Models\News::on($database)
+->inRandomOrder()
+->take(5)
+->get();
 @endphp
+
+
 
 @extends('layouts/layoutFront')
 
 @section('title', $news->title)
 
 @section('meta')
-    <meta property="og:type" content="article" />
-    <meta property="og:title" content="{{ $news->title }}" />
-    <meta property="og:description" content="{{ $news->meta_description }}" />
-    <meta property="og:image" content="{{ asset('storage/images/' . $news->image) }}" />
-    <meta property="og:url" content="{{ request()->fullUrl() }}" />
-    <meta property="og:site_name" content="{{ config('app.name') }}" />
-    <meta property="article:published_time" content="{{ $news->created_at->toIso8601String() }}" />
-    <meta property="article:author" content="{{ $news->author->name ?? 'Unknown' }}" />
-    <meta property="article:section" content="{{ $news->category }}" />
-    <meta property="article:tag" content="{{ $news->keywords }}" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="{{ $news->title }}" />
+<meta property="og:description" content="{{ $news->meta_description }}" />
+<meta property="og:image" content="{{ asset('storage/images/' . $news->image) }}" />
+<meta property="og:url" content="{{ request()->fullUrl() }}" />
+<meta property="og:site_name" content="{{ config('settings.site_name') }}" />
+<meta property="article:modified_time" content="{{ $news->updated_at->toIso8601String() }}" />
+<meta property="article:published_time" content="{{ $news->created_at->toIso8601String() }}" />
 
-    <!-- Twitter Card Tags -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="{{ $news->title }}" />
-    <meta name="twitter:description" content="{{ $news->meta_description }}" />
-    <meta name="twitter:image" content="{{ asset('storage/images/' . $news->image) }}" />
-    <meta name="twitter:site" content="{{ '@your_twitter_handle' }}" />
+<meta property="article:author" content="{{ optional($news->author)->name ?? 'Unknown' }}" />
+
+<meta property="article:section" content="{{ $news->category->name }}" />
+
+<meta property="article:tag" content="{{ implode(',', $news->keywords->pluck('keyword')->toArray()) }}" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="{{ $news->title }}" />
+<meta name="twitter:description" content="{{ $news->meta_description }}" />
+<meta name="twitter:image" content="{{ asset('storage/images/' . $news->image) }}" />
+<meta name="twitter:site" content="{{ config('settings.twitter') }}" />
 @endsection
 
 @section('content')
-<!-- Hero Section -->
 <section class="section-py first-section-pt help-center-header position-relative overflow-hidden" style="background-color: rgb(32, 44, 69);">
-  <h1 class="text-center text-white">{{ $news->title }}</h1> <!-- H1: العنوان الرئيسي للخبر -->
+  <h1 class="text-center text-white">{{ $news->title }}</h1>
 </section>
 
 <div class="container px-4 mt-4">
   <ol class="breadcrumb breadcrumb-style2" aria-label="breadcrumbs">
     <li class="breadcrumb-item"><a href="{{ route('home') }}"><i class="ti ti-home-check"></i>{{ __('Home') }}</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('frontend.news.index') }}">{{ __('News') }}</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('frontend.news.index',['database' => $database ?? session('database', 'default_database')]) }}">{{ __('News') }}</a></li>
     <li class="breadcrumb-item active" aria-current="page">{{ $news->title }}</li>
   </ol>
   <div class="progress mt-2">
@@ -54,7 +60,6 @@ $randomNews = News::where('category', $news->category)
   </div>
 </div>
 
-<!-- Google Ads - Top Ad (After Hero Section) -->
 <div class="container mt-4 mb-4">
   @if(config('settings.google_ads_desktop_news') || config('settings.google_ads_mobile_news'))
   <div class="ads-container text-center">
@@ -91,8 +96,13 @@ $randomNews = News::where('category', $news->category)
               </div>
             </div>
 
-            <img src="{{ asset('storage/images/' . $news->image) }}" class="card-img-top img-fluid mb-4" alt="{{ $news->title }}">
-            <h4 class="mb-4">{{ $news->description }}</h4>
+            @php
+    // التحقق إذا كانت الصورة موجودة أم لا
+    $imagePath = $news->image ? asset('storage/images/' . $news->image) : asset('path_to_default_image/default.jpg');
+@endphp
+
+<img src="{{ $imagePath }}" class="card-img-top img-fluid mb-4" alt="{{ $news->title }}">
+<h4 class="mb-4"> {!! $news->description !!}</h4>
 
             <div class="news-details pt-12">
               <div class="row">
@@ -103,8 +113,7 @@ $randomNews = News::where('category', $news->category)
                   $keywordIndex = 0;
                   @endphp
 
-                  @foreach(explode(',', $news->keywords) as $keyword)
-                  @php
+                  @foreach(explode(',', implode(',', $news->keywords->pluck('keyword')->toArray())) as $keyword) @php
                   $color = $colors[$keywordIndex % count($colors)];
                   $keywordIndex++;
                   @endphp
@@ -114,7 +123,7 @@ $randomNews = News::where('category', $news->category)
 
                 <div class="col-md-6">
                   <h6>{{ __('Meta Description') }}</h6>
-                  <span class="badge bg-info bg-glow">{{ $news->meta_description }}</span>
+                  <span class="badge bg-info bg-glow" style="text-wrap: wrap;">{{ $news->meta_description }}</span>
                 </div>
               </div>
             </div>
@@ -195,7 +204,7 @@ $randomNews = News::where('category', $news->category)
         <h5 class="mb-3">{{ __('Related News') }}</h5>
         <div class="accordion stick-top accordion-custom-button" id="relatedNews">
           @foreach($randomNews as $index => $randomItem)
-          <div class="accordion-item @if($index === 0) active @endif mb-0">
+          <div class="accordion-item @if($index === 1) active @endif mb-0">
             <div class="accordion-header" id="heading{{ $index }}">
               <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#collapse{{ $index }}" aria-expanded="false" aria-controls="collapse{{ $index }}">
                 <span class="d-flex flex-column">
@@ -203,18 +212,17 @@ $randomNews = News::where('category', $news->category)
                 </span>
               </button>
             </div>
-            <div id="collapse{{ $index }}" class="accordion-collapse collapse @if($index === 0) show @endif" data-bs-parent="#relatedNews">
+            <div id="collapse{{ $index }}" class="accordion-collapse collapse @if($index === 2) show @endif" data-bs-parent="#relatedNews">
               <div class="accordion-body py-4">
                 <img src="{{ asset('storage/images/' . $randomItem->image) }}" class="card-img-top img-fluid mb-2" alt="{{ $randomItem->title }}">
                 <p class="text-body fw-normal">{{ Str::limit(strip_tags($randomItem->description), 100) }}</p>
-                <a href="{{ route('frontend.news.show', $randomItem->id) }}" class="btn btn-primary btn-sm">{{ __('Read more') }}</a>
+                <a href="{{ route('frontend.news.show', ['database' => $database ?? session('database', 'default_database'), 'id' => $randomItem->id]) }}" class="btn btn-primary btn-sm">{{ __('Read more') }}</a>
               </div>
             </div>
           </div>
           @endforeach
         </div>
 
-        <!-- Google Ads -->
         <div class="container mt-4 mb-4">
           @if(config('settings.google_ads_desktop_news') || config('settings.google_ads_mobile_news_2'))
           <div class="ads-container text-center">
@@ -231,56 +239,53 @@ $randomNews = News::where('category', $news->category)
   </div>
 </section>
 
-<!-- Schema Markup -->
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "NewsArticle",
-  "headline": "{{ $news->title }}",
-  "image": "{{ asset('storage/images/' . $news->image) }}",
-  "datePublished": "{{ $news->created_at->toIso8601String() }}",
-  "author": {
-    "@type": "Person",
-    "name": "{{ $news->author->name ?? 'Unknown' }}"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "{{ config('app.name') }}",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "{{ asset('assets/img/logo.png') }}"
-    }
-  },
-  "description": "{{ $news->meta_description }}"
-}
+  {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    "headline": "{{ $news->title }}",
+    "image": "{{ asset('storage/images/' . $news->image) }}",
+    "datePublished": "{{ $news->created_at->toIso8601String() }}",
+    "author": {
+      "@type": "Person",
+      "name": "{{ optional($news->author)->name ?? 'Unknown' }}"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "{{ config('settings.site_name') }}",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "{{ asset('storage/' . config('settings.site_logo')) }}"
+      }
+    },
+    "description": "{{ $news->meta_description }}"
+  }
 </script>
 
-<!-- Breadcrumbs Schema -->
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    {
-      "@type": "ListItem",
-      "position": 1,
-      "name": "Home",
-      "item": "{{ url('/') }}"
-    },
-    {
-      "@type": "ListItem",
-      "position": 2,
-      "name": "News",
-      "item": "{{ route('frontend.news.index') }}"
-    },
-    {
-      "@type": "ListItem",
-      "position": 3,
-      "name": "{{ $news->title }}",
-      "item": "{{ request()->url() }}"
-    }
-  ]
-}
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "{{ url('/') }}"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "News",
+        "item": "{{ route('frontend.news.index',['database' => $database ?? session('database', 'default_database')]) }}"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "{{ $news->title }}",
+        "item": "{{ request()->url() }}"
+      }
+    ]
+  }
 </script>
 
 @endsection

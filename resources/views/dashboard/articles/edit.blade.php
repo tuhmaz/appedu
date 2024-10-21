@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Storage;
 
 @section('page-script')
 @vite(['resources/assets/js/forms-editors.js',
-'resources/js/filter.js'])
+'resources/assets/vendor/js/filter.js'])
 @endsection
 
 @section('content')

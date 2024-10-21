@@ -108,8 +108,9 @@ use Illuminate\Support\Facades\Auth;
 <!-- End Users List Table -->
 
 <!-- Pagination -->
-<div class="mt-4 d-flex justify-content-center">
-  {{ $users->appends(request()->input())->links() }}
+<div class="pagination pagination-outline-secondary">
+  {{ $users->links('components.pagination.custom') }}
 </div>
+
 <!-- End Pagination -->
 @endsection

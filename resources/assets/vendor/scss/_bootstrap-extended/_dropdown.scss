@@ -32,6 +32,7 @@
   // For RTL
   @include rtl-style {
     text-align: right;
+    position: absolute;
   }
 }
 // Dropdown item line height
@@ -115,6 +116,7 @@
 
       .dropdown-menu#{$infix}-end {
         --bs-position: end;
+        
 
         &[data-bs-popper] {
           left: 0;

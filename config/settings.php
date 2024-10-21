@@ -2,7 +2,7 @@
 
 return [
     'site_name' => env('SITE_NAME', 'My Website'),
-    'site_logo' => env('SITE_LOGO', 'default_logo.png'),
+    'site_logo' => env('SITE_LOGO', 'logos/default_logo.webp'),
     'site_favicon' => env('SITE_FAVICON', 'assets/img/favicon/favicon.ico'),
     'site_description' => env('SITE_DESCRIPTION', 'This is the default site description.'),
     'admin_email' => env('ADMIN_EMAIL', 'admin@example.com'),
@@ -49,6 +49,10 @@ return [
     'google_ads_desktop_article_2' => env('GOOGLE_ADS_DESKTOP_ARTICLE_2', ''),
     'google_ads_desktop_news' => env('GOOGLE_ADS_DESKTOP_NEWS', ''),
     'google_ads_desktop_news_2' => env('GOOGLE_ADS_DESKTOP_NEWS_2', ''),
+    'google_ads_desktop_home' => env('GOOGLE_ADS_DESKTOP_HOME', ''),
+    'google_ads_desktop_home_2' => env('GOOGLE_ADS_DESKTOP_HOME_2', ''),
+    'google_ads_desktop_download' => env('GOOGLE_ADS_DESKTOP_DOWNLOAD', ''),
+    'google_ads_desktop_download_2' => env('GOOGLE_ADS_DESKTOP_DOWNLOAD_2', ''),
     'google_ads_mobile_classes' => env('GOOGLE_ADS_MOBILE_CLASSES', ''),
     'google_ads_mobile_classes_2' => env('GOOGLE_ADS_MOBILE_CLASSES_2', ''),
     'google_ads_mobile_subject' => env('GOOGLE_ADS_MOBILE_SUBJECT', ''),
@@ -57,4 +61,9 @@ return [
     'google_ads_mobile_article_2' => env('GOOGLE_ADS_MOBILE_ARTICLE_2', ''),
     'google_ads_mobile_news' => env('GOOGLE_ADS_MOBILE_NEWS', ''),
     'google_ads_mobile_news_2' => env('GOOGLE_ADS_MOBILE_NEWS_2', ''),
+    'google_ads_mobile_download' => env('GOOGLE_ADS_MOBILE_DOWNLOAD', ''),
+    'google_ads_mobile_download_2' => env('GOOGLE_ADS_MOBILE_DOWNLOAD_2', ''),
+    'google_ads_mobile_home' => env('GOOGLE_ADS_MOBILE_HOME', ''),
+    'google_ads_mobile_home_2' => env('GOOGLE_ADS_MOBILE_HOME_2', ''),
+
 ];

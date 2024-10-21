@@ -17,11 +17,11 @@ class EgyptSemesterSeeder extends Seeder
     {
         $now = Carbon::now();
         $semesters = ['الفصل الدراسي الأول', 'الفصل الدراسي الثاني'];
-        $school_classes = DB::connection('subdomain2')->table('school_classes')->get(); // اتصال بقاعدة مصر
+        $school_classes = DB::connection('eg')->table('school_classes')->get(); // اتصال بقاعدة مصر
 
         foreach ($school_classes as $class) {
             foreach ($semesters as $semester_name) {
-                DB::connection('subdomain2')->table('semesters')->insert([
+                DB::connection('eg')->table('semesters')->insert([
                     'semester_name' => $semester_name,
                     'grade_level' => $class->id,
                     'created_at' => $now,

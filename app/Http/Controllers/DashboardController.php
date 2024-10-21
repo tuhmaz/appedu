@@ -10,15 +10,15 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-  
+
     // دالة لجلب الاتصال المناسب بناءً على الدولة
     private function getConnection(string $country): string
     {
         return match ($country) {
-            'saudi' => 'subdomain1',
-            'egypt' => 'subdomain2',
-            'palestine' => 'subdomain3',
-            default => 'mysql', // قاعدة البيانات الافتراضية هي الأردن
+            'saudi' => 'sa',
+            'egypt' => 'eg',
+            'palestine' => 'ps',
+            default => 'jo', // قاعدة البيانات الافتراضية هي الأردن
         };
     }
 

@@ -8,10 +8,10 @@ $configData = Helper::appClasses();
 <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
 
   @if(!isset($navbarFull))
-    <div class="app-brand demo">
+    <div class="app-brand edu">
       <a href="{{url('/')}}" class="app-brand-link">
-        <span class="app-brand-logo demo">@include('_partials.macros',["height"=>20])</span>
-        <span class="app-brand-text demo menu-text fw-bold">{{config('settings.site_name')}}</span>
+        <span class="app-brand-logo edu">@include('_partials.macros',["height"=>20])</span>
+        <span class="app-brand-text edu menu-text fw-bold">{{config('settings.site_name')}}</span>
       </a>
 
       <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">

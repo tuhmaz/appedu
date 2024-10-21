@@ -14,7 +14,7 @@ class FilterController extends Controller
     // دالة لاسترجاع قاعدة البيانات المناسبة
     private function getConnection(Request $request): string
     {
-        return $request->query('database', session('database', 'mysql'));
+        return $request->query('database', session('database', 'jo'));
     }
 
     // عرض صفحة الفلترة

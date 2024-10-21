@@ -1,85 +1,101 @@
 {{-- resources/views/frontend/keyword/keyword.blade.php --}}
-@php
-    $configData = Helper::appClasses();
-    $pageTitle = "Articles related to: " . $keyword->keyword;
-    use Illuminate\Support\Str;
-@endphp
-
-
 @extends('layouts/layoutFront')
+
+@php
+$configData = Helper::appClasses();
+$pageTitle = __('content_related_to', ['keyword' => $keyword->keyword]);
+use Illuminate\Support\Str;
+
+@endphp
 
 @section('title', $pageTitle)
 
 @section('page-style')
-    @vite('resources/assets/vendor/scss/pages/front-page-help-center.scss')
+@vite('resources/assets/vendor/scss/pages/front-page-help-center.scss')
 @endsection
 
 @section('meta')
-    <!-- Meta Keywords -->
-    <meta name="keywords" content="{{ $keyword->keyword }}">
+<meta name="keywords" content="{{ $keyword->keyword }}">
 
-    <!-- Meta Description -->
-    <meta name="description" content="Find articles related to {{ $keyword->keyword }}">
+<meta name="description" content="{{ __('find_articles_news_related_to', ['keyword' => $keyword->keyword]) }}">
 
-    <!-- Canonical URL -->
-    <link rel="canonical" href="{{ url()->current() }}">
+<link rel="canonical" href="{{ url()->current() }}">
 
-    <!-- Open Graph Tags -->
-    <meta property="og:title" content="Articles related to {{ $keyword->keyword }}" />
-    <meta property="og:description" content="Find articles related to {{ $keyword->keyword }}" />
-    <meta property="og:url" content="{{ url()->current() }}" />
-    <meta property="og:image" content="{{ $article->image_url ?? asset('assets/img/front-pages/icons/articles_default_image.jpg') }}" />
+<meta property="og:title" content="{{ __('content_related_to', ['keyword' => $keyword->keyword]) }}" />
+<meta property="og:description" content="{{ __('find_articles_news_related_to', ['keyword' => $keyword->keyword]) }}" />
+<meta property="og:url" content="{{ url()->current() }}" />
+<meta property="og:image" content="{{ $articles->first()->image_url ?? asset('assets/img/front-pages/icons/articles_default_image.jpg') }}" />
 
-    <!-- Twitter (X) Card Tags -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Articles related to {{ $keyword->keyword }}" />
-    <meta name="twitter:description" content="Find articles related to {{ $keyword->keyword }}" />
-    <meta name="twitter:image" content="{{ $article->image_url ?? asset('assets/img/front-pages/icons/articles_default_image.jpg') }}" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="{{ __('content_related_to', ['keyword' => $keyword->keyword]) }}" />
+<meta name="twitter:description" content="{{ __('find_articles_news_related_to', ['keyword' => $keyword->keyword]) }}" />
+<meta name="twitter:image" content="{{ $articles->first()->image_url ?? asset('assets/img/front-pages/icons/articles_default_image.jpg') }}" />
 @endsection
 
 @section('content')
 <link rel="stylesheet" href="{{ asset('assets/css/custom.css') }}">
 
-<!-- Hero Section -->
 <section class="section-py first-section-pt help-center-header position-relative overflow-hidden" style="background-color: rgb(32, 44, 69); padding-bottom: 20px;">
-    <h1 class="text-center text-white fw-semibold">{{ __('Articles Related to') }} {{ $keyword->keyword }}</h1>
+  <h1 class="text-center text-white fw-semibold">{{ __('content_related_to') }} {{ $keyword->keyword }}</h1>
 </section>
 
-<!-- Breadcrumb -->
 <div class="container px-4 mt-4">
-    <ol class="breadcrumb breadcrumb-style2" aria-label="breadcrumbs">
-        <li class="breadcrumb-item">
-            <a href="{{ route('home') }}">
-                <i class="ti ti-home-check"></i>{{ __('Home') }}
-            </a>
-        </li>
-        <li class="breadcrumb-item">
-            <a href="{{ route('frontend.keywords.index') }}">{{ __('Keywords') }}</a>
-        </li>
-        <li class="breadcrumb-item active" aria-current="page">{{ $keyword->keyword }}</li>
-    </ol>
+  <ol class="breadcrumb breadcrumb-style2" aria-label="breadcrumbs">
+    <li class="breadcrumb-item">
+      <a href="{{ route('home') }}">
+        <i class="ti ti-home-check"></i>{{ __('home') }}
+      </a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="{{ route('frontend.keywords.index', ['database' => $database ?? session('database', 'jo')]) }}">{{ __('keywords') }}</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">{{ $keyword->keyword }}</li>
+  </ol>
 </div>
 
 <div class="container mt-4">
-    <!-- Displaying related articles -->
-    @if($articles->isEmpty())
-        <p class="text-center">{{ __('No articles found for this keyword.') }}</p>
-    @else
-        <div class="row">
-            @foreach($articles as $article)
-                <div class="col-md-4 mb-4">
-                    <div class="card">
-                    <img src="{{ $article->image_url ?? asset('assets/img/front-pages/icons/articles_default_image.jpg') }}" class="card-img-top" alt="{{ $article->title }}">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ $article->title }}</h5>
-                            <p class="card-text">{{ Str::limit(strip_tags($article->content), 100) }}</p>
-                            <a href="{{ route('frontend.articles.show', ['article' => $article->id]) }}" class="btn btn-primary">{{ __('Read More') }}</a>
-
-                        </div>
-                    </div>
-                </div>
-            @endforeach
+  @if($articles->isEmpty() && $news->isEmpty())
+    <p class="text-center">{{ __('no_content_for_keyword') }}</p>
+  @else
+  <h3>{{ __('articles') }}</h3>
+  <div class="row">
+    @foreach($articles as $article)
+    <div class="col-md-4 mb-4">
+      <div class="card h-100 d-flex flex-column">
+        <img src="{{ $article->image_url ?? asset('assets/img/front-pages/icons/articles_default_image.jpg') }}" class="card-img-top" alt="{{ $article->title }}" style="height: 200px; object-fit: cover;">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">{{ $article->title }}</h5>
+          <p class="card-text">{{ Str::limit(strip_tags($article->content), 100) }}</p>
+          <div class="mt-auto">
+            <a href="{{ route('frontend.articles.show', ['database' => $database ?? session('database', 'jo'), 'article' => $article->id]) }}" class="btn btn-primary">{{ __('read_more') }}</a>
+          </div>
         </div>
-    @endif
+      </div>
+    </div>
+    @endforeach
+  </div>
+
+  <h3>{{ __('news') }}</h3>
+  <div class="row">
+    @foreach($news as $newsItem)
+    <div class="col-md-4 mb-4">
+      <div class="card h-100 d-flex flex-column">
+        @php
+          $imagePath = $newsItem->image ? asset('storage/images/' . $newsItem->image) : asset('assets/img/pages/news-default.jpg');
+        @endphp
+
+        <img src="{{ $imagePath }}" class="card-img-top" alt="{{ $newsItem->title }}" style="height: 200px; object-fit: cover;">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">{{ $newsItem->title }}</h5>
+          <p class="card-text">{{ Str::limit(strip_tags($newsItem->description), 100) }}</p>
+          <div class="mt-auto">
+            <a href="{{ route('frontend.news.show', ['database' => $database ?? session('database', 'jo'), 'id' => $newsItem->id]) }}" class="btn btn-primary">{{ __('read_more') }}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    @endforeach
+  </div>
+  @endif
 </div>
 @endsection

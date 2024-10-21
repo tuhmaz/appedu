@@ -20,7 +20,6 @@ return new class extends Migration
             $table->string('title');
             $table->longText('content');
             $table->string('meta_description', 120)->nullable();
-            $table->text('keywords')->nullable();
             $table->unsignedInteger('visit_count')->default(0); // Adding visit_count
             $table->timestamps();
         });

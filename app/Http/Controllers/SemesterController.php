@@ -14,16 +14,16 @@ class SemesterController extends Controller
 
         switch ($country) {
             case 'saudi':
-                $connection = 'subdomain1';
+                $connection = 'sa';
                 break;
             case 'egypt':
-                $connection = 'subdomain2';
+                $connection = 'eg';
                 break;
             case 'palestine':
-                $connection = 'subdomain3';
+                $connection = 'ps';
                 break;
             default:
-                $connection = 'mysql';
+                $connection = 'jo';
         }
 
         $semesters = Semester::on($connection)->with('schoolClass')->get();
@@ -40,19 +40,19 @@ class SemesterController extends Controller
         $country = $request->input('country', 'jordan');
         switch ($country) {
             case 'jordan':
-                $connection = 'mysql';
+                $connection = 'jo';
                 break;
             case 'saudi':
-                $connection = 'subdomain1';
+                $connection = 'sa';
                 break;
             case 'egypt':
-                $connection = 'subdomain2';
+                $connection = 'eg';
                 break;
             case 'palestine':
-                $connection = 'subdomain3';
+                $connection = 'ps';
                 break;
             default:
-                $connection = 'mysql';
+                $connection = 'jo';
         }
         $classes = SchoolClass::on($connection)->get();
         return view('dashboard.semesters.create', compact('classes', 'country'));
@@ -68,19 +68,19 @@ class SemesterController extends Controller
         $country = $request->input('country', 'jordan');
         switch ($country) {
             case 'jordan':
-                $connection = 'mysql';
+                $connection = 'jo';
                 break;
             case 'saudi':
-                $connection = 'subdomain1';
+                $connection = 'sa';
                 break;
             case 'egypt':
-                $connection = 'subdomain2';
+                $connection = 'eg';
                 break;
             case 'palestine':
-                $connection = 'subdomain3';
+                $connection = 'ps';
                 break;
             default:
-                $connection = 'mysql';
+                $connection = 'jo';
         }
         Semester::on($connection)->create([
             'semester_name' => $request->semester_name,
@@ -96,16 +96,16 @@ class SemesterController extends Controller
 
         switch ($country) {
             case 'saudi':
-                $connection = 'subdomain1';
+                $connection = 'sa';
                 break;
             case 'egypt':
-                $connection = 'subdomain2';
+                $connection = 'eg';
                 break;
             case 'palestine':
-                $connection = 'subdomain3';
+                $connection = 'ps';
                 break;
             default:
-                $connection = 'mysql';
+                $connection = 'jo';
         }
 
         $semester = Semester::on($connection)->findOrFail($id);
@@ -118,19 +118,19 @@ class SemesterController extends Controller
         $country = $request->input('country', 'jordan');
         switch ($country) {
             case 'jordan':
-                $connection = 'mysql';
+                $connection = 'jo';
                 break;
             case 'saudi':
-                $connection = 'subdomain1';
+                $connection = 'sa';
                 break;
             case 'egypt':
-                $connection = 'subdomain2';
+                $connection = 'eg';
                 break;
             case 'palestine':
-                $connection = 'subdomain3';
+                $connection = 'ps';
                 break;
             default:
-                $connection = 'mysql';
+                $connection = 'jo';
         }
 
         $semester = Semester::on($connection)->findOrFail($id);
@@ -149,19 +149,19 @@ class SemesterController extends Controller
         $country = $request->input('country', 'jordan');
         switch ($country) {
             case 'jordan':
-                $connection = 'mysql';
+                $connection = 'jo';
                 break;
             case 'saudi':
-                $connection = 'subdomain1';
+                $connection = 'sa';
                 break;
             case 'egypt':
-                $connection = 'subdomain2';
+                $connection = 'eg';
                 break;
             case 'palestine':
-                $connection = 'subdomain3';
+                $connection = 'ps';
                 break;
             default:
-                $connection = 'mysql';
+                $connection = 'jo';
         }
 
         $semester = Semester::on($connection)->findOrFail($id);
@@ -178,19 +178,19 @@ class SemesterController extends Controller
         $country = $request->input('country', 'jordan');
         switch ($country) {
             case 'jordan':
-                $connection = 'mysql';
+                $connection = 'jo';
                 break;
             case 'saudi':
-                $connection = 'subdomain1';
+                $connection = 'sa';
                 break;
             case 'egypt':
-                $connection = 'subdomain2';
+                $connection = 'eg';
                 break;
             case 'palestine':
-                $connection = 'subdomain3';
+                $connection = 'ps';
                 break;
             default:
-                $connection = 'mysql';
+                $connection = 'jo';
         }
 
         $semester = Semester::on($connection)->findOrFail($id);
@@ -199,4 +199,3 @@ class SemesterController extends Controller
         return redirect()->route('semesters.index', ['country' => $country])->with('success', 'Semester deleted successfully.');
     }
 }
-

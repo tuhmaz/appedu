@@ -4,7 +4,7 @@ use Illuminate\Support\Str;
 ?>
 @extends('layouts/layoutMaster')
 
- 
+
 @section('page-script')
   @vite(['resources/assets/js/forms-editors.js'])
 @endsection
@@ -59,22 +59,20 @@ use Illuminate\Support\Str;
                         <label for="description" class="form-label">{{ __('Description') }}</label>
                         <textarea id="summernote" name="description" class="form-control" placeholder="{{ __('description') }}" required>{{ $news->description }}</textarea>
                     </div>
-
                     <div class="mb-3">
-                        <label for="category" class="form-label">{{ __('Category') }}</label>
-                        <select name="category" class="form-control" required>
-                            <option value="extra_teachers" {{ $news->category == 'extra_teachers' ? 'selected' : '' }}>{{ __('Extra Teachers') }}</option>
-                            <option value="ministry_news" {{ $news->category == 'ministry_news' ? 'selected' : '' }}>{{ __('Ministry News') }}</option>
-                            <option value="school_management" {{ $news->category == 'school_management' ? 'selected' : '' }}>{{ __('School Management') }}</option>
-                            <option value="school_broadcast" {{ $news->category == 'school_broadcast' ? 'selected' : '' }}>{{ __('School Broadcast') }}</option>
-                            <option value="evaluation_tools" {{ $news->category == 'evaluation_tools' ? 'selected' : '' }}>{{ __('Evaluation Tools') }}</option>
-                            <option value="general_information" {{ $news->category == 'general_information' ? 'selected' : '' }}>{{ __('General Information') }}</option>
-                            <option value="administrative_plans" {{ $news->category == 'administrative_plans' ? 'selected' : '' }}>{{ __('Administrative Plans') }}</option>
-                            <option value="miscellaneous" {{ $news->category == 'miscellaneous' ? 'selected' : '' }}>{{ __('Miscellaneous') }}</option>
-                            <option value="teacher_promotions" {{ $news->category == 'teacher_promotions' ? 'selected' : '' }}>{{ __('Teacher Promotions') }}</option>
-                            <option value="achievement_files" {{ $news->category == 'achievement_files' ? 'selected' : '' }}>{{ __('Achievement Files') }}</option>
-                        </select>
-                    </div>
+    <label for="category_id" class="form-label">{{ __('Category') }}</label>
+    <select name="category_id" class="form-control" required>
+        @foreach ($categories as $id => $name)
+            <option value="{{ $id }}" {{ $news->category_id == $id ? 'selected' : '' }}>
+                {{ $name }}
+            </option>
+        @endforeach
+    </select>
+</div>
+
+
+
+
 
                     <div class="mb-3">
                         <label for="meta_description" class="form-label">{{ __('Meta Description') }}</label>
@@ -83,13 +81,13 @@ use Illuminate\Support\Str;
 
                     <div class="mb-3">
                         <label for="keywords" class="form-label">{{ __('Keywords') }}</label>
-                        <input type="text" name="keywords" class="form-control" id="keywords" placeholder="{{ __('keywords') }}" value="{{ $news->keywords }}" required>
+                        <input type="text" name="keywords" class="form-control" id="keywords" placeholder="{{ __('keywords') }}" value=" {{ implode(',', $news->keywords->pluck('keyword')->toArray()) }}" required>
                     </div>
 
                     <div class="mb-3">
                         <label for="image" class="form-label">{{ __('Image') }}</label>
                         <input type="file" name="image" class="form-control">
-                        @if ($news->image != 'noimage.jpg')
+                        @if ($news->image != 'noimage.svg')
                             <img src="{{ Storage::url('images/' . $news->image) }}" alt="{{ $news->alt }}" class="img-thumbnail mt-3" style="max-width: 200px;">
                         @endif
                     </div>

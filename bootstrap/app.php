@@ -18,12 +18,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
   ->withMiddleware(function (Middleware $middleware) {
     // Middleware للواجهة الأمامية (web)
-    $middleware->web(LocaleMiddleware::class);              // لتبديل اللغة
-    $middleware->web(UpdateUserLastActivity::class);        // لتحديث نشاط المستخدم
-    $middleware->web(SwitchDatabase::class);                // لتبديل قاعدة البيانات بناءً على المسار الفرعي
+    $middleware->web(LocaleMiddleware::class);
+    $middleware->web(UpdateUserLastActivity::class);
+    $middleware->web(SwitchDatabase::class);
 
-    // يمكنك إضافة المزيد من الـ Middleware إذا لزم الأمر.
-  })
+   })
   ->withExceptions(function (Exceptions $exceptions) {
-    // يمكنك التعامل مع الاستثناءات هنا.
-  })->create();
+   })->create();

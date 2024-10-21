@@ -16,26 +16,19 @@ class SchoolClassController extends Controller
 {
   use HasFactory, Notifiable;
 
+  private function getConnection(string $country): string
+  {
+    return match ($country) {
+      'saudi' => 'sa',
+      'egypt' => 'eg',
+      'palestine' => 'ps',
+      default => 'jo',
+    };
+  }
   public function index(Request $request)
   {
     $country = $request->input('country', 'jordan');
-    $connection = null;
-    switch ($country) {
-      case 'jordan':
-        $connection = 'mysql';
-        break;
-      case 'saudi':
-        $connection = 'subdomain1';
-        break;
-      case 'egypt':
-        $connection = 'subdomain2';
-        break;
-      case 'palestine':
-        $connection = 'subdomain3';
-        break;
-      default:
-        return redirect()->back()->withErrors(['country' => 'Invalid country selected']);
-    }
+    $connection = $this->getConnection($country);
     $schoolClasses = DB::connection($connection)->table('school_classes')->get();
     return view('dashboard.classes.index', compact('schoolClasses', 'country'));
   }
@@ -58,16 +51,16 @@ class SchoolClassController extends Controller
     switch ($request->input('country')) {
 
       case 'jordan':
-        $connection = 'mysql';
+        $connection = 'jo';
         break;
       case 'saudi':
-        $connection = 'subdomain1';
+        $connection = 'sa';
         break;
       case 'egypt':
-        $connection = 'subdomain2';
+        $connection = 'eg';
         break;
       case 'palestine':
-        $connection = 'subdomain3';
+        $connection = 'ps';
         break;
       default:
         return redirect()->back()->withErrors(['country' => 'Invalid country selected']);
@@ -109,30 +102,21 @@ class SchoolClassController extends Controller
 
 
   public function edit(Request $request, $id)
-  {
-    $country = $request->input('country');
-    switch ($country) {
-      case 'jordan':
-        $connection = 'mysql';
-        break;
-      case 'saudi':
-        $connection = 'subdomain1';
-        break;
-      case 'egypt':
-        $connection = 'subdomain2';
-        break;
-      case 'palestine':
-        $connection = 'subdomain3';
-        break;
-      default:
-        return redirect()->back()->withErrors(['country' => 'Invalid country selected']);
-    }
+{
+  $country = $request->input('country', 'jordan');
+  $connection = $this->getConnection($country);
+
+    // جلب الصف من قاعدة البيانات
     $class = DB::connection($connection)->table('school_classes')->where('id', $id)->first();
+
+    // التحقق مما إذا كان الصف موجودًا
     if (!$class) {
-      return redirect()->back()->withErrors(['class' => 'Class not found']);
+        return redirect()->back()->withErrors(['class' => 'Class not found']);
     }
+
+    // عرض صفحة التعديل
     return view('dashboard.classes.edit', compact('class', 'country'));
-  }
+}
 
 
 
@@ -146,16 +130,16 @@ class SchoolClassController extends Controller
 
     switch ($request->input('country')) {
       case 'jordan':
-        $connection = 'mysql';
+        $connection = 'jo';
         break;
       case 'saudi':
-        $connection = 'subdomain1';
+        $connection = 'sa';
         break;
       case 'egypt':
-        $connection = 'subdomain2';
+        $connection = 'eg';
         break;
       case 'palestine':
-        $connection = 'subdomain3';
+        $connection = 'ps';
         break;
       default:
         return redirect()->back()->withErrors(['country' => 'Invalid country selected']);
@@ -174,16 +158,16 @@ class SchoolClassController extends Controller
     $country = $request->input('country');
     switch ($country) {
       case 'jordan':
-        $connection = 'mysql';
+        $connection = 'jo';
         break;
       case 'saudi':
-        $connection = 'subdomain1';
+        $connection = 'sa';
         break;
       case 'egypt':
-        $connection = 'subdomain2';
+        $connection = 'eg';
         break;
       case 'palestine':
-        $connection = 'subdomain3';
+        $connection = 'ps';
         break;
       default:
         return redirect()->back()->withErrors(['country' => 'Invalid country selected']);

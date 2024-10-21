@@ -137,6 +137,24 @@
       ]
     },
     {
+      "name": "Categories",
+      "icon": "menu-icon tf-icons ti ti-news",
+      "slug": "app-Categories",
+      "permission": "manage Categories",
+      "submenu": [
+        {
+          "url": "dashboard/categories",
+          "name": "All categories",
+          "slug": "app-news-all"
+        },
+        {
+          "url": "dashboard/categories/create",
+          "name": "Add New categories",
+          "slug": "app-categories-create"
+        }
+      ]
+    },
+    {
       "name": "News",
       "icon": "menu-icon tf-icons ti ti-news",
       "slug": "app-news",

@@ -30,17 +30,19 @@ use Illuminate\Support\Str;
 
                         <div class="row mb-4">
                             <div class="col-md-6">
-                                <p><strong>{{ __('Category') }}:</strong> {{ __($news->category) }}</p>
+                            <p><strong>{{ __('Category') }}:</strong> {{ $news->category->name }}</p>
+
                             </div>
                             <div class="col-md-6">
                                 <p><strong>{{ __('Meta Description') }}:</strong> {{ $news->meta_description }}</p>
                             </div>
                             <div class="col-md-6">
-                                <p><strong>{{ __('Keywords') }}:</strong> {{ $news->keywords }}</p>
+                                <p><strong>{{ __('Keywords') }}:</strong>
+                              {{ implode(',', $news->keywords->pluck('keyword')->toArray()) }}</p>
                             </div>
                         </div>
 
-                        @if ($news->image != 'noimage.jpg')
+                        @if ($news->image != 'noimage.svg')
                             <div class="mb-4">
                                 <h5><strong>{{ __('Image') }}:</strong></h5>
                                 <div class="text-center">

@@ -15,7 +15,6 @@ $detect = new MobileDetect;
   <p class="text-center text-white px-4 mb-0">{{ __('Find the files you need below') }}</p>
 </section>
 
-<!-- Breadcrumb -->
 <div class="container px-4 mt-4">
   <ol class="breadcrumb breadcrumb-style2" aria-label="breadcrumbs">
     <li class="breadcrumb-item"><a href="{{ route('home') }}"><i class="ti ti-home-check"></i>{{ __('Home') }}</a></li>
@@ -60,7 +59,7 @@ $detect = new MobileDetect;
             <tr>
               <td>{{ ucfirst($file->file_category) }}</td>
               <td>
-                <a href="{{ route('frontend.articles.show', $file->article->id) }}">
+                <a href="{{ route('frontend.articles.show', ['database' => $database ?? session('database', 'jo'), 'article' => $file->article->id]) }}">
                   {{ $file->article->title ?? __('No title') }}
                 </a>
               </td>
@@ -76,7 +75,6 @@ $detect = new MobileDetect;
   @endif
 </div>
 
-<!-- Google Ads - Top Ad (After Hero Section) -->
 <div class="container mt-4 mb-4">
   @if(config('settings.google_ads_desktop_article') || config('settings.google_ads_mobile_article'))
   <div class="ads-container text-center">

@@ -2,7 +2,7 @@
 @section('title', __('Create New Article'))
 
 @section('page-script')
-@vite(['resources/assets/js/forms-editors.js', 'resources/js/filter.js'])
+@vite(['resources/assets/js/forms-editors.js', 'resources/assets/vendor/js/filter.js'])
 @endsection
 
 @section('content')
@@ -13,7 +13,6 @@
 
 
 
-<!-- عرض رسالة النجاح أو الفشل -->
 @if(session('success'))
 <div class="alert alert-solid-success d-flex align-items-center" role="alert">
   <span class="alert-icon rounded">

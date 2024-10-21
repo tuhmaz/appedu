@@ -28,80 +28,80 @@ return [
   | is supported by Laravel. You're free to add / remove connections.
   |
   */
-    'connections' => [
+  'connections' => [
 
-      // قاعدة البيانات الرئيسية (Jordan)
-      'mysql' => [
-          'driver' => 'mysql',
-          'url' => env('DB_URL'),
-          'host' => env('DB_HOST', '127.0.0.1'),
-          'port' => env('DB_PORT', '3306'),
-          'database' => env('DB_DATABASE', 'JO_database'),
-          'username' => env('DB_USERNAME', 'root'),
-          'password' => env('DB_PASSWORD', ''),
-          'charset' => 'utf8mb4',
-          'collation' => 'utf8mb4_unicode_ci',
-          'prefix' => '',
-          'strict' => true,
-          'engine' => null,
-          'options' => extension_loaded('pdo_mysql') ? array_filter([
+    // قاعدة البيانات الرئيسية (Jordan)
+    'jo' => [
+      'driver' => 'mysql',
+      'url' => env('DB_URL'),
+      'host' => env('DB_HOST', '127.0.0.1'),
+      'port' => env('DB_PORT', '3306'),
+      'database' => env('DB_DATABASE', 'JO_database'),
+      'username' => env('DB_USERNAME', 'root'),
+      'password' => env('DB_PASSWORD', ''),
+      'charset' => 'utf8mb4',
+      'collation' => 'utf8mb4_unicode_ci',
+      'prefix' => '',
+      'strict' => true,
+      'engine' => null,
+      'options' => extension_loaded('pdo_mysql') ? array_filter([
         PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
       ]) : [],
-      ],
+    ],
 
-      // قاعدة البيانات الفرعية 1 (Saudi Arabia)
-      'subdomain1' => [
-          'driver' => 'mysql',
-          'host' => env('DB_HOST_SUBDOMAIN1', '127.0.0.1'),
-          'port' => env('DB_PORT_SUBDOMAIN1', '3306'),
-          'database' => env('DB_DATABASE_SUBDOMAIN1', 'SA_database'),
-          'username' => env('DB_USERNAME_SUBDOMAIN1', 'root'),
-          'password' => env('DB_PASSWORD_SUBDOMAIN1', ''),
-          'charset' => 'utf8mb4',
-          'collation' => 'utf8mb4_unicode_ci',
-          'prefix' => '',
-          'strict' => true,
-          'engine' => null,
-          'options' => extension_loaded('pdo_mysql') ? array_filter([
+    // قاعدة البيانات الفرعية 1 (Saudi Arabia)
+    'sa' => [
+      'driver' => 'mysql',
+      'host' => env('DB_HOST_sa', '127.0.0.1'),
+      'port' => env('DB_PORT_sa', '3306'),
+      'database' => env('DB_DATABASE_sa', 'SA_database'),
+      'username' => env('DB_USERNAME_sa', 'root'),
+      'password' => env('DB_PASSWORD_sa', ''),
+      'charset' => 'utf8mb4',
+      'collation' => 'utf8mb4_unicode_ci',
+      'prefix' => '',
+      'strict' => true,
+      'engine' => null,
+      'options' => extension_loaded('pdo_mysql') ? array_filter([
         PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
       ]) : [],
-      ],
+    ],
 
-      // قاعدة البيانات الفرعية 2 (Egypt)
-      'subdomain2' => [
-          'driver' => 'mysql',
-          'host' => env('DB_HOST_SUBDOMAIN2', '127.0.0.1'),
-          'port' => env('DB_PORT_SUBDOMAIN2', '3306'),
-          'database' => env('DB_DATABASE_SUBDOMAIN2', 'EG_database'),
-          'username' => env('DB_USERNAME_SUBDOMAIN2', 'root'),
-          'password' => env('DB_PASSWORD_SUBDOMAIN2', ''),
-          'charset' => 'utf8mb4',
-          'collation' => 'utf8mb4_unicode_ci',
-          'prefix' => '',
-          'strict' => true,
-          'engine' => null,
-          'options' => extension_loaded('pdo_mysql') ? array_filter([
+    // قاعدة البيانات الفرعية 2 (Egypt)
+    'eg' => [
+      'driver' => 'mysql',
+      'host' => env('DB_HOST_eg', '127.0.0.1'),
+      'port' => env('DB_PORT_eg', '3306'),
+      'database' => env('DB_DATABASE_eg', 'EG_database'),
+      'username' => env('DB_USERNAME_eg', 'root'),
+      'password' => env('DB_PASSWORD_eg', ''),
+      'charset' => 'utf8mb4',
+      'collation' => 'utf8mb4_unicode_ci',
+      'prefix' => '',
+      'strict' => true,
+      'engine' => null,
+      'options' => extension_loaded('pdo_mysql') ? array_filter([
         PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
       ]) : [],
-      ],
+    ],
 
-      // قاعدة البيانات الفرعية 3 (Palestine)
-      'subdomain3' => [
-          'driver' => 'mysql',
-          'host' => env('DB_HOST_SUBDOMAIN3', '127.0.0.1'),
-          'port' => env('DB_PORT_SUBDOMAIN3', '3306'),
-          'database' => env('DB_DATABASE_SUBDOMAIN3', 'PS_database'),
-          'username' => env('DB_USERNAME_SUBDOMAIN3', 'root'),
-          'password' => env('DB_PASSWORD_SUBDOMAIN3', ''),
-          'charset' => 'utf8mb4',
-          'collation' => 'utf8mb4_unicode_ci',
-          'prefix' => '',
-          'strict' => true,
-          'engine' => null,
-          'options' => extension_loaded('pdo_mysql') ? array_filter([
+    // قاعدة البيانات الفرعية 3 (Palestine)
+    'ps' => [
+      'driver' => 'mysql',
+      'host' => env('DB_HOST_ps', '127.0.0.1'),
+      'port' => env('DB_PORT_ps', '3306'),
+      'database' => env('DB_DATABASE_ps', 'PS_database'),
+      'username' => env('DB_USERNAME_ps', 'root'),
+      'password' => env('DB_PASSWORD_ps', ''),
+      'charset' => 'utf8mb4',
+      'collation' => 'utf8mb4_unicode_ci',
+      'prefix' => '',
+      'strict' => true,
+      'engine' => null,
+      'options' => extension_loaded('pdo_mysql') ? array_filter([
         PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
       ]) : [],
-      ],
+    ],
 
 
   ],

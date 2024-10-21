@@ -29,7 +29,10 @@
           <a class="nav-link" id="social-media-tab" data-bs-toggle="tab" href="#social-media" role="tab" aria-controls="social-media" aria-selected="false">{{ __('Social Media') }}</a>
         </li>
         <li class="nav-item" role="presentation">
-          <a class="nav-link" id="ads-tab" data-bs-toggle="tab" href="#ads" role="tab" aria-controls="ads" aria-selected="false">{{ __('Google Ads') }}</a>
+          <a class="nav-link" id="adsdt-tab" data-bs-toggle="tab" href="#adsdt" role="tab" aria-controls="adsdt" aria-selected="false">{{ __('Google Ads Desktop') }}</a>
+        </li>
+        <li class="nav-item" role="presentation">
+          <a class="nav-link" id="adsmo-tab" data-bs-toggle="tab" href="#adsmo" role="tab" aria-controls="adsmo" aria-selected="false">{{ __('Google Ads Mobile') }}</a>
         </li>
 
 
@@ -58,8 +61,11 @@
         <div class="tab-pane fade" id="social-media" role="tabpanel" aria-labelledby="social-media-tab">
           @include('dashboard.settings.partials.social-media')
         </div>
-        <div class="tab-pane fade" id="ads" role="tabpanel" aria-labelledby="ads-tab">
-          @include('dashboard.settings.partials.ads')
+        <div class="tab-pane fade" id="adsdt" role="tabpanel" aria-labelledby="adsdt-tab">
+          @include('dashboard.settings.partials.adsdt')
+        </div>
+        <div class="tab-pane fade" id="adsmo" role="tabpanel" aria-labelledby="adsmo-tab">
+          @include('dashboard.settings.partials.adsmo')
         </div>
       </div>
     </div>

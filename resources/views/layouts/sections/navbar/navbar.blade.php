@@ -14,12 +14,12 @@ $navbarDetached = ($navbarDetached ?? '');
     <div class="{{$containerNav}}">
       @endif
 
-      <!--  Brand demo (display only for navbar-full and hide on below xl) -->
+      <!--  Brand edu (display only for navbar-full and hide on below xl) -->
       @if(isset($navbarFull))
-        <div class="navbar-brand app-brand demo d-none d-xl-flex py-0 me-4">
+        <div class="navbar-brand app-brand edu d-none d-xl-flex py-0 me-4">
           <a href="{{url('/')}}" class="app-brand-link">
-            <span class="app-brand-logo demo">@include('_partials.macros',["height"=>20])</span>
-            <span class="app-brand-text demo menu-text fw-bold">{{config('settings.site_name')}}</span>
+            <span class="app-brand-logo edu"> <img src="{{ asset('storage/' . config('settings.site_logo')) }}" alt="LogoWebsite" style="max-width: 20px; height: auto;"></span>
+            <span class="app-brand-text edu menu-text fw-bold">{{config('settings.site_name')}}</span>
           </a>
           @if(isset($menuHorizontal))
             <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-xl-none">
@@ -51,23 +51,13 @@ $navbarDetached = ($navbarDetached ?? '');
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
               <li>
-                <a class="dropdown-item {{ app()->getLocale() === 'en' ? 'active' : '' }}" href="{{url('lang/en')}}" data-language="en" data-text-direction="ltr">
-                  <span>English</span>
-                </a>
-              </li>
-              <li>
-                <a class="dropdown-item {{ app()->getLocale() === 'fr' ? 'active' : '' }}" href="{{url('lang/fr')}}" data-language="fr" data-text-direction="ltr">
-                  <span>French</span>
-                </a>
-              </li>
-              <li>
                 <a class="dropdown-item {{ app()->getLocale() === 'ar' ? 'active' : '' }}" href="{{url('lang/ar')}}" data-language="ar" data-text-direction="rtl">
                   <span>Arabic</span>
                 </a>
               </li>
               <li>
-                <a class="dropdown-item {{ app()->getLocale() === 'de' ? 'active' : '' }}" href="{{url('lang/de')}}" data-language="de" data-text-direction="ltr">
-                  <span>German</span>
+                <a class="dropdown-item {{ app()->getLocale() === 'en' ? 'active' : '' }}" href="{{url('lang/en')}}" data-language="en" data-text-direction="ltr">
+                  <span>English</span>
                 </a>
               </li>
             </ul>
@@ -119,14 +109,14 @@ $navbarDetached = ($navbarDetached ?? '');
                     <span class="dropdown-shortcuts-icon rounded-circle mb-3">
                       <i class="ti ti-calendar ti-26px text-heading"></i>
                     </span>
-                    <a href="{{url('app/calendar')}}" class="stretched-link">Calendar</a>
+                    <a href="{{url('dashboard/calendar')}}" class="stretched-link"> {{ __('Calendar') }}</a>
                     <small>Appointments</small>
                   </div>
                   <div class="dropdown-shortcuts-item col">
                     <span class="dropdown-shortcuts-icon rounded-circle mb-3">
-                      <i class="ti ti-file-dollar ti-26px text-heading"></i>
+                      <i class="ti ti-home ti-26px text-heading"></i>
                     </span>
-                    <a href="{{url('app/invoice/list')}}" class="stretched-link">Invoice App</a>
+                    <a href="{{url('/')}}" class="stretched-link">{{ __('home') }}</a>
                     <small>Manage Accounts</small>
                   </div>
                 </div>
@@ -135,14 +125,14 @@ $navbarDetached = ($navbarDetached ?? '');
                     <span class="dropdown-shortcuts-icon rounded-circle mb-3">
                       <i class="ti ti-user ti-26px text-heading"></i>
                     </span>
-                    <a href="{{url('app/user/list')}}" class="stretched-link">User App</a>
+                    <a href="{{url('dashboard/users')}}" class="stretched-link">{{ __('User') }}</a>
                     <small>Manage Users</small>
                   </div>
                   <div class="dropdown-shortcuts-item col">
                     <span class="dropdown-shortcuts-icon rounded-circle mb-3">
                       <i class="ti ti-users ti-26px text-heading"></i>
                     </span>
-                    <a href="{{url('app/access-roles')}}" class="stretched-link">Role Management</a>
+                    <a href="{{url('dashboard/roles')}}" class="stretched-link">{{ __('Roles List') }}</a>
                     <small>Permission</small>
                   </div>
                 </div>
@@ -151,33 +141,19 @@ $navbarDetached = ($navbarDetached ?? '');
                     <span class="dropdown-shortcuts-icon rounded-circle mb-3">
                       <i class="ti ti-device-desktop-analytics ti-26px text-heading"></i>
                     </span>
-                    <a href="{{url('/')}}" class="stretched-link">Dashboard</a>
+                    <a href="{{url('dashboard')}}" class="stretched-link">{{__('Dashboard')}}</a>
                     <small>User Dashboard</small>
                   </div>
                   <div class="dropdown-shortcuts-item col">
                     <span class="dropdown-shortcuts-icon rounded-circle mb-3">
                       <i class="ti ti-settings ti-26px text-heading"></i>
                     </span>
-                    <a href="{{url('pages/account-settings-account')}}" class="stretched-link">Setting</a>
+                    <a href="{{url('dashboard/settings')}}" class="stretched-link">{{ __('Settings') }}</a>
                     <small>Account Settings</small>
                   </div>
                 </div>
-                <div class="row row-bordered overflow-visible g-0">
-                  <div class="dropdown-shortcuts-item col">
-                    <span class="dropdown-shortcuts-icon rounded-circle mb-3">
-                      <i class="ti ti-help ti-26px text-heading"></i>
-                    </span>
-                    <a href="{{url('pages/faq')}}" class="stretched-link">FAQs</a>
-                    <small>FAQs & Articles</small>
-                  </div>
-                  <div class="dropdown-shortcuts-item col">
-                    <span class="dropdown-shortcuts-icon rounded-circle mb-3">
-                      <i class="ti ti-square ti-26px text-heading"></i>
-                    </span>
-                    <a href="{{url('modal-examples')}}" class="stretched-link">Modals</a>
-                    <small>Useful Popups</small>
-                  </div>
-                </div>
+
+                
               </div>
             </div>
           </li>

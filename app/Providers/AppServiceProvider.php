@@ -4,7 +4,11 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Vite;
-use Laravel\Passport\Passport; // تأكد من إضافة هذه الاستيراد
+use Laravel\Passport\Passport;
+use App\Models\Article;
+use App\Observers\ArticleObserver;
+use App\Models\News;
+use App\Observers\NewsObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,10 +25,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // تحميل مفاتيح OAuth من المسار المحدد
+        // Load Passport keys
         Passport::loadKeysFrom(__DIR__.'/../secrets/oauth');
 
-        // تكوين السمات الخاصة بـ Vite
+        // Custom Vite styles
         Vite::useStyleTagAttributes(function (?string $src, string $url, ?array $chunk, ?array $manifest) {
             if ($src !== null) {
                 return [
@@ -34,5 +38,12 @@ class AppServiceProvider extends ServiceProvider
             }
             return [];
         });
+
+        // Register the observer for Article model
+        Article::observe(ArticleObserver::class);
+
+        // Register the observer for News model
+        News::observe(NewsObserver::class);
     }
+
 }

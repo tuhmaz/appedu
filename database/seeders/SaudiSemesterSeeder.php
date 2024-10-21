@@ -17,11 +17,11 @@ class SaudiSemesterSeeder extends Seeder
     {
         $now = Carbon::now();
         $semesters = ['الفصل الدراسي الأول', 'الفصل الدراسي الثاني'];
-        $school_classes = DB::connection('subdomain1')->table('school_classes')->get();  
+        $school_classes = DB::connection('sa')->table('school_classes')->get();
 
         foreach ($school_classes as $class) {
             foreach ($semesters as $semester_name) {
-                DB::connection('subdomain1')->table('semesters')->insert([
+                DB::connection('sa')->table('semesters')->insert([
                     'semester_name' => $semester_name,
                     'grade_level' => $class->id,
                     'created_at' => $now,

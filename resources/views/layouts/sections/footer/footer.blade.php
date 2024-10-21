@@ -3,17 +3,29 @@ $containerFooter = (isset($configData['contentLayout']) && $configData['contentL
 @endphp
 
 <!-- Footer-->
-<footer class="content-footer footer bg-footer-theme">
+<footer class="content-footer footer bg-footer-theme background bg-black">
   <div class="{{ $containerFooter }}">
     <div class="footer-container d-flex align-items-center justify-content-between py-4 flex-md-row flex-column">
       <div class="text-body">
-        © <script>document.write(new Date().getFullYear())</script>, made with ❤️ by <a href="{{ (!empty(config('variables.creatorUrl')) ? config('variables.creatorUrl') : '') }}" target="_blank" class="footer-link">{{ (!empty(config('variables.creatorName')) ? config('variables.creatorName') : '') }}</a>
+        © <script>document.write(new Date().getFullYear())</script>, made with  by <a href="{{config('settings.site_name')}}" target="_blank" class="footer-link">{{config('settings.site_name')}}</a>
       </div>
-      <div class="d-none d-lg-inline-block">
-        <a href="{{ config('variables.licenseUrl') ? config('variables.licenseUrl') : '#' }}" class="footer-link me-4" target="_blank">License</a>
-        <a href="{{ config('variables.moreThemes') ? config('variables.moreThemes') : '#' }}" target="_blank" class="footer-link me-4">More Themes</a>
-        <a href="{{ config('variables.documentation') ? config('variables.documentation').'/laravel-introduction.html' : '#' }}" target="_blank" class="footer-link me-4">Documentation</a>
-        <a href="{{ config('variables.support') ? config('variables.support') : '#' }}" target="_blank" class="footer-link d-none d-sm-inline-block">Support</a>
+      <div class="d-none d-lg-inline-block ">
+      <a href="{{ config('settings.whatsapp') }}" target="_blank">
+          <img src="{{asset('assets/img/front-pages/icons/whatsapp.svg')}}" alt="whatsapp icon" />
+        </a>
+
+        <a href="{{ config('settings.tiktok') }}" class="me-3" target="_blank">
+          <img src="{{asset('assets/img/front-pages/icons/tiktok.svg')}}" alt="tiktok icon" />
+        </a>
+        <a href="{{ config('settings.facebook') }}" class="me-3" target="_blank">
+          <img src="{{asset('assets/img/front-pages/icons/facebook.svg')}}" alt="facebook icon" />
+        </a>
+        <a href="{{ config('settings.twitter') }}" class="me-3 text black" target="_blank">
+          <img src="{{asset('assets/img/front-pages/icons/twitter.svg')}}" alt="twitter icon" />
+        </a>
+        <a href="{{ config('settings.linkedin') }}" target="_blank">
+          <img src="{{asset('assets/img/front-pages/icons/linkedin.svg')}}" alt="linkedin icon" />
+        </a>
       </div>
     </div>
   </div>

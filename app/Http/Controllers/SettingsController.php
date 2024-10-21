@@ -51,6 +51,10 @@ class SettingsController extends Controller
       'google_ads_desktop_article_2' => Setting::getValue('google_ads_desktop_article_2', ''),
       'google_ads_desktop_news' => Setting::getValue('google_ads_desktop_news', ''),
       'google_ads_desktop_news_2' => Setting::getValue('google_ads_desktop_news_2', ''),
+      'google_ads_desktop_download' => Setting::getValue('google_ads_desktop_download', ''),
+      'google_ads_desktop_download_2' => Setting::getValue('google_ads_desktop_download_2', ''),
+      'google_ads_desktop_home' => Setting::getValue('google_ads_desktop_home', ''),
+      'google_ads_desktop_home_2' => Setting::getValue('google_ads_desktop_home_2', ''),
       'google_ads_mobile_classes' => Setting::getValue('google_ads_mobile_classes', ''),
       'google_ads_mobile_classes_2' => Setting::getValue('google_ads_mobile_classes_2', ''),
       'google_ads_mobile_subject' => Setting::getValue('google_ads_mobile_subject', ''),
@@ -59,6 +63,10 @@ class SettingsController extends Controller
       'google_ads_mobile_article_2' => Setting::getValue('google_ads_mobile_article_2', ''),
       'google_ads_mobile_news' => Setting::getValue('google_ads_mobile_news', ''),
       'google_ads_mobile_news_2' => Setting::getValue('google_ads_mobile_news_2', ''),
+      'google_ads_mobile_download' => Setting::getValue('google_ads_mobile_download', ''),
+      'google_ads_mobile_download_2' => Setting::getValue('google_ads_mobile_download_2', ''),
+      'google_ads_mobile_home' => Setting::getValue('google_ads_mobile_home', ''),
+      'google_ads_mobile_home_2' => Setting::getValue('google_ads_mobile_home_2', ''),
     ];
 
     return view('dashboard.settings.index', compact('settings'));

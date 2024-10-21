@@ -30,13 +30,13 @@ class SaudiSubjectsSeeder extends Seeder
         ];
 
 
-        $school_classes = DB::connection('subdomain1')->table('school_classes')->get();
+        $school_classes = DB::connection('sa')->table('school_classes')->get();
 
         foreach ($grades_subjects as $grade_level => $subjects_list) {
             $class = $school_classes->where('grade_level', $grade_level)->first();
             if ($class) {
                 foreach ($subjects_list as $subject_name) {
-                    DB::connection('subdomain1')->table('subjects')->insert([
+                    DB::connection('sa')->table('subjects')->insert([
                         'subject_name' => $subject_name,
                         'grade_level' => $class->id,
                         'created_at' => $now,

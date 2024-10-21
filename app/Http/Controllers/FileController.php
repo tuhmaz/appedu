@@ -18,10 +18,10 @@ class FileController extends Controller
   private function getConnection(string $country): string
   {
     return match ($country) {
-      'saudi' => 'subdomain1',
-      'egypt' => 'subdomain2',
-      'palestine' => 'subdomain3',
-      default => 'mysql',
+      'saudi' => 'sa',
+      'egypt' => 'eg',
+      'palestine' => 'ps',
+      default => 'jo',
     };
   }
 
@@ -217,7 +217,7 @@ class FileController extends Controller
   public function downloadFile(Request $request, $id)
   {
 
-    $database = $request->query('database', session('database', 'mysql'));
+    $database = $request->query('database', session('database', 'jo'));
 
 
     if (!$database) {
@@ -242,4 +242,30 @@ class FileController extends Controller
 
     return redirect()->back()->with('error', 'File not found.');
   }
+
+  public function showDownloadPage($fileId)
+{
+    $database = session('database', 'jo');
+    if (!config('database.connections.' . $database)) {
+        abort(500, 'Database connection [' . $database . '] not configured.');
+    }
+    $file = File::on($database)->findOrFail($fileId);
+    $pageTitle = 'تحميل الملف: ' . $file->file_Name;
+
+    return view('frontend.download.download-page', compact('file', 'pageTitle'));
+}
+
+public function processDownload($fileId)
+{
+    $database = session('database', 'jo');
+    if (!config('database.connections.' . $database)) {
+        abort(500, 'Database connection [' . $database . '] not configured.');
+    }
+    $file = File::on($database)->findOrFail($fileId);
+    $file->increment('download_count');
+
+    return response()->download(storage_path('app/public/' . $file->file_path));
+}
+
+
 }

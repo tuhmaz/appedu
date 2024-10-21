@@ -21,7 +21,11 @@ class User extends Authenticatable
     use TwoFactorAuthenticatable;
     use HasRoles;
 
-
+    public function isAdmin()
+    {
+        // افترض أن لديك عمود `is_admin` في جدول `users`
+        return $this->is_admin; // يمكنك تعديل هذا بناءً على اسم العمود أو الطريقة التي تحدد بها المسؤول
+    }
     /**
      * The attributes that are mass assignable.
      *

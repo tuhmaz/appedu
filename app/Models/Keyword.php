@@ -19,7 +19,7 @@ class Keyword extends Model
 
     public function news()
     {
-        return $this->belongsToMany(News::class, 'news_keyword');
+        return $this->belongsToMany(News::class, 'news_keyword', 'keyword_id', 'news_id');
     }
 
 }

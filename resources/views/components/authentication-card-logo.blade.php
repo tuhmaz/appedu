@@ -1,5 +1,5 @@
 <a class="d-flex justify-content-center" href="/">
-<span class="app-brand-logo demo bg-primary">
+<span class="app-brand-logo edu bg-primary">
   <svg viewBox="0 0 148 80" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" height="20">
     <defs>
       <linearGradient id="a1" x1="46.49" x2="62.46" y1="53.39" y2="48.2" gradientUnits="userSpaceOnUse">

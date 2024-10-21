@@ -27,5 +27,8 @@ class Subject extends Model
         return $this->hasMany(Semester::class, 'grade_level', 'grade_level');
     }
 
-    
+    public function article()
+    {
+        return $this->belongsTo(Article::class, 'subject_id');
+    }
 }

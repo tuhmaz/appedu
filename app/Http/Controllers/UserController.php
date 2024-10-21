@@ -17,11 +17,9 @@ class UserController extends Controller
     public function index(Request $request)
     {
       $users = DB::table('users')->get();
-        // جلب الأدوار
-        $roles = Role::all();
+         $roles = Role::all();
 
-        // تطبيق التصفية على المستخدمين بناءً على الاسم أو الإيميل أو الدور
-        $users = User::with('roles')
+         $users = User::with('roles')
             ->when($request->get('role'), function ($query) use ($request) {
                 $query->whereHas('roles', function ($query) use ($request) {
                     $query->where('name', $request->get('role'));

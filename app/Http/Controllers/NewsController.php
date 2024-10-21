@@ -3,180 +3,255 @@
 namespace App\Http\Controllers;
 
 use App\Models\News;
+use App\Models\Keyword;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Intervention\Image\ImageManagerStatic as Image;
 
 class NewsController extends Controller
 {
-
-
   private function getConnection(string $country): string
   {
-      switch ($country) {
-          case 'saudi':
-              return 'subdomain1';
-          case 'egypt':
-              return 'subdomain2';
-          case 'palestine':
-              return 'subdomain3';
-          default:
-              return 'mysql';
-      }
+    switch ($country) {
+      case 'saudi':
+        return 'sa';
+      case 'egypt':
+        return 'eg';
+      case 'palestine':
+        return 'ps';
+      default:
+        return 'jo';
+    }
+  }
+
+  public function index(Request $request)
+  {
+    $country = $request->input('country', 'jordan');
+    $connection = $this->getConnection($country);
+
+    $categories = Category::on($connection)->select('id', 'name', 'slug')->get();
+
+    $query = News::on($connection)->orderBy('created_at', 'desc');
+
+    if ($request->has('category') && !empty($request->input('category'))) {
+      $query->where('category_id', $request->input('category'));
+    }
+
+    $news = $query->paginate(10);
+
+    return view('dashboard.news.index', compact('news', 'categories', 'country'));
+  }
+
+  public function show($id, Request $request)
+  {
+    $database = $request->get('database', session('database', 'mysql'));
+
+    config()->set('database.default', $database);
+
+    $news = News::on($database)->findOrFail($id);
+
+    $news = News::on($database)->with('author')->findOrFail($id);
+
+    return view('dashboard.news.show', compact('news'));
   }
 
 
-    public function index(Request $request)
-    {
-         $country = $request->input('country', 'jordan');
-        $connection = $this->getConnection($country);
-
-         $query = News::on($connection);
-
-         if ($request->has('category') && !empty($request->input('category'))) {
-            $query->where('category', $request->input('category'));
-        }
-
-         $news = $query->paginate(10);
-
-         $categories = [
-            'extra_teachers' => __('Extra Teachers'),
-            'ministry_news' => __('Ministry News'),
-            'school_management' => __('School Management'),
-            'school_broadcast' => __('School Broadcast'),
-            'evaluation_tools' => __('Evaluation Tools'),
-            'general_information' => __('General Information'),
-            'administrative_plans' => __('Administrative Plans'),
-            'miscellaneous' => __('Miscellaneous'),
-            'teacher_promotions' => __('Teacher Promotions'),
-            'achievement_files' => __('Achievement Files'),
-        ];
-
-        return view('dashboard.news.index', compact('news', 'categories', 'country'));
+  private function replaceKeywordsWithLinks($description, $keywords)
+  {
+    if (is_string($keywords)) {
+      $keywords = array_map('trim', explode(',', $keywords));
     }
 
-
-    public function show($id, Request $request)
-    {
-
-
-      $database = $request->get('database', session('database', 'mysql'));
-
-
-      config()->set('database.default', $database);
-
-
-
-        $news = News::findOrFail($id);
-
-
-        if ($request->is('dashboard/*')) {
-            return view('dashboard.news.show', compact('news', 'country'));
-        } else {
-            return view('frontend.news.show', compact('news' ));
-        }
+    foreach ($keywords as $keyword) {
+      $database = session('database', 'jo');
+      $keywordText = $keyword->keyword ?? $keyword;
+      $keywordLink = route('keywords.indexByKeyword', ['database' => $database, 'keywords' => $keywordText]);
+      $description = preg_replace('/\b' . preg_quote($keywordText, '/') . '\b/', '<a href="' . $keywordLink . '">' . $keywordText . '</a>', $description);
     }
 
+    return $description;
+  }
 
-
-
-
-
-    public function create(Request $request)
-    {
-        $country = $request->input('country', 'jordan');
-        return view('dashboard.news.create', compact('country'));
+  private function createInternalLinks($description, $keywords)
+  {
+    if (is_string($keywords)) {
+      $keywordsArray = array_map('trim', explode(',', $keywords));
+    } else {
+      $keywordsArray = $keywords->pluck('keyword')->toArray();
     }
 
-    public function store(Request $request)
-    {
-        $country = $request->input('country', 'jordan');
-        $connection = $this->getConnection($country);
-
-        $request->validate([
-            'title' => 'required|max:60',
-            'description' => 'required',
-            'category' => 'required',
-            'meta_description' => 'required|max:160',
-            'keywords' => 'required',
-            'image' => 'image|nullable|max:6999'
-        ]);
-
-        if ($request->hasFile('image')) {
-            $filenameWithExt = $request->file('image')->getClientOriginalName();
-            $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
-            $extension = $request->file('image')->getClientOriginalExtension();
-            $fileNameToStore = $filename . '_' . time() . '.' . $extension;
-            $path = $request->file('image')->storeAs('public/images', $fileNameToStore);
-        } else {
-            $fileNameToStore = 'noimage.jpg';
-        }
-
-        News::on($connection)->create([
-            'title' => $request->input('title'),
-            'description' => $request->input('description'),
-            'category' => $request->input('category'),
-            'meta_description' => $request->input('meta_description'),
-            'keywords' => $request->input('keywords'),
-            'image' => $fileNameToStore,
-            'alt' => $request->file('image') ? $filename : 'no image',
-        ]);
-
-        return redirect()->route('news.index', ['country' => $country])->with('success', 'News Created');
+    foreach ($keywordsArray as $keyword) {
+      $database = session('database', 'jo');
+      $url = route('keywords.indexByKeyword', ['database' => $database, 'keywords' => $keyword]);
+      $description = str_replace($keyword, '<a href="' . $url . '">' . $keyword . '</a>', $description);
     }
 
-    public function edit(Request $request, $id)
-    {
-        $country = $request->input('country', 'jordan');
-        $connection = $this->getConnection($country);
+    return $description;
+  }
 
-        $news = News::on($connection)->findOrFail($id);
-        return view('dashboard.news.edit', compact('news', 'country'));
+  public function create(Request $request)
+  {
+    $country = $request->input('country', 'jordan');
+    $connection = $this->getConnection($country);
+
+    $categories = Category::on($connection)->pluck('name', 'id');
+
+    return view('dashboard.news.create', compact('country', 'categories'));
+  }
+
+  public function store(Request $request)
+  {
+    $validated = $request->validate([
+      'title' => 'required|max:60',
+      'description' => 'required',
+      'category_id' => 'required|exists:categories,id',
+      'meta_description' => 'nullable|max:160',
+      'keywords' => 'nullable|string',
+      'image' => 'nullable|image|max:6999',
+      'author_id' => 'nullable|exists:users,id'
+    ]);
+
+    $country = $request->input('country', 'jordan');
+    $connection = $this->getConnection($country);
+
+    $defaultImage = match ($country) {
+      'jo' => 'noimage.svg',
+      'saudi' => 'newssa.svg',
+      'egypt' => 'newseg.svg',
+      'palestine' => 'newsps.svg',
+      default => 'noimage.svg',
+    };
+
+    DB::connection($connection)->transaction(function () use ($request, $validated, $country, $connection, $defaultImage) {
+      $metaDescription = $request->meta_description ?: Str::limit(strip_tags($request->description), 120);
+
+      $fileNameToStore = $request->hasFile('image')
+        ? $this->storeImage($request->file('image'))
+        : $defaultImage;
+
+      $imageAltText = $request->input('title');
+      $authorId = Auth::user()->id;
+
+      $news = News::on($connection)->create([
+        'title' => $request->input('title'),
+        'description' => $request->input('description'),
+        'category_id' => $request->input('category_id'),
+        'meta_description' => $metaDescription,
+        'image' => $fileNameToStore,
+        'alt' => $imageAltText,
+        'author_id' => $authorId,
+      ]);
+
+
+      if ($request->keywords) {
+        $this->attachKeywords($news, $request->input('keywords'), $connection);
+      }
+    });
+
+    return redirect()->route('news.index', ['country' => $country])
+      ->with('success', 'News Created Successfully');
+  }
+
+
+
+  private function storeImage($file)
+  {
+      $filename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+      $fileNameToStore = $filename . '_' . time() . '.webp';
+
+      $image = Image::make($file->getRealPath());
+
+      // Define quality (optional)
+      $quality = 70; // Value between 0 and 100
+
+      // Convert the image to WebP format
+      $image->encode('webp', $quality);
+
+      // Save the image to storage
+      Storage::disk('public')->put('images/' . $fileNameToStore, (string) $image);
+
+      return $fileNameToStore;
+  }
+
+
+
+  private function attachKeywords($news, $keywords, $connection)
+  {
+    $keywordsArray = array_map('trim', explode(',', $keywords));
+    foreach ($keywordsArray as $keyword) {
+      $keywordModel = Keyword::on($connection)->firstOrCreate(['keyword' => $keyword]);
+      $news->keywords()->attach($keywordModel->id);
+    }
+  }
+
+  public function edit(Request $request, $id)
+  {
+    $country = $request->input('country', 'jordan');
+    $connection = $this->getConnection($country);
+
+    $news = News::on($connection)->findOrFail($id);
+
+    $categories = Category::on($connection)->pluck('name', 'id');
+
+    return view('dashboard.news.edit', compact('news', 'country', 'categories'));
+  }
+
+
+  public function update(Request $request, $id)
+  {
+    $country = $request->input('country', 'jordan');
+    $connection = $this->getConnection($country);
+
+    $request->validate([
+      'title' => 'required|max:60',
+      'description' => 'required',
+      'category_id' => 'required|exists:categories,id',
+      'meta_description' => 'required|max:160',
+      'keywords' => 'nullable|string',
+      'image' => 'nullable|image|max:6999',
+      'author_id' => 'nullable|exists:users,id'
+    ]);
+
+    $news = News::on($connection)->findOrFail($id);
+    $news->update($request->only('title', 'description', 'category_id', 'meta_description'));
+
+    if ($request->hasFile('image')) {
+      $fileNameToStore = $this->storeImage($request->file('image'));
+      $news->update(['image' => $fileNameToStore]);
     }
 
-    public function update(Request $request, $id)
-    {
-        $country = $request->input('country', 'jordan');
-        $connection = $this->getConnection($country);
-
-        $request->validate([
-            'title' => 'required|max:60',
-            'description' => 'required',
-            'category' => 'required',
-            'meta_description' => 'required|max:160',
-            'keywords' => 'required',
-            'image' => 'nullable|image|max:6999'
-        ]);
-
-        $news = News::on($connection)->findOrFail($id);
-        $news->update($request->only('title', 'description', 'category', 'meta_description', 'keywords'));
-
-        if ($request->hasFile('image')) {
-            $filenameWithExt = $request->file('image')->getClientOriginalName();
-            $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
-            $extension = $request->file('image')->getClientOriginalExtension();
-            $fileNameToStore = $filename . '_' . time() . '.' . $extension;
-            $path = $request->file('image')->storeAs('public/images', $fileNameToStore);
-            $news->update([
-                'image' => $fileNameToStore,
-                'alt' => $filename,
-            ]);
-        }
-
-        return redirect()->route('news.index', ['country' => $country])->with('success', 'News Updated');
+    if ($request->keywords) {
+      $this->attachKeywords($news, $request->input('keywords'), $connection);
     }
 
-    public function destroy(Request $request, $id)
-    {
-        $country = $request->input('country', 'jordan');
-        $connection = $this->getConnection($country);
+    return redirect()->route('news.index', ['country' => $country])->with('success', 'News Updated');
+  }
 
-        $news = News::on($connection)->findOrFail($id);
-        if ($news->image != 'noimage.jpg') {
-            Storage::delete('public/images/' . $news->image);
-        }
-        $news->delete();
+  public function destroy(Request $request, $id)
+{
+    $country = $request->input('country', 'jordan');
+    $connection = $this->getConnection($country);
 
-        return redirect()->route('news.index', ['country' => $country])->with('success', 'News Deleted');
+    $news = News::on($connection)->findOrFail($id);
+
+    // الحصول على اسم ملف الصورة المرتبطة بالخبر قبل حذفه
+    $imageName = $news->image;
+
+    // حذف الخبر من قاعدة البيانات
+    $news->delete();
+
+    // التحقق من أن الصورة ليست الصورة الافتراضية وحذفها من التخزين
+    if ($imageName && $imageName !== 'default.webp') {
+        // استخدام Storage Facade لحذف الملف
+        Storage::disk('public')->delete('images/' . $imageName);
     }
+
+    return redirect()->route('news.index', ['country' => $country])
+        ->with('success', 'تم حذف الخبر والصورة المرتبطة به بنجاح');
+}
+
 }

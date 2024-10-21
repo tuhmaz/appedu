@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Comment extends Model
 {
-    protected $connection = 'mysql'; // Always use the main database
+    protected $connection = 'jo'; // Always use the main database
     protected $fillable = ['body', 'commentable_id', 'commentable_type', 'user_id'];
 
     // العلاقة متعددة الأشكال
