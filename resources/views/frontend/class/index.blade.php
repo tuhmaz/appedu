@@ -37,11 +37,11 @@ $database = session('database', 'jo'); // Default to 'jo' if not set
 
 
 @section('page-style')
-@vite(['resources/css/but.scss'])
+@vite(['resources/assets/vendor/scss/but.scss'])
 @endsection
 
 @section('page-script')
-@vite(['resources/js/but.js'])
+@vite(['resources/assets/vendor/js/but.js'])
 @endsection
 
 
