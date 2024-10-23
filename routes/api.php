@@ -71,7 +71,7 @@ Route::prefix('{database}')->group(function () {
   Route::get('/news/category/{category}', [FrontendNewsController::class, 'category']);
 
   Route::prefix('lesson')->group(function () {
-      Route::get('/', [GradeOneController::class, 'index']);
+      Route::get('/', [GradeOneController::class, 'index'])->name('lesson.index');
       Route::get('/{id}', [GradeOneController::class, 'show']);
       Route::get('subjects/{subject}', [GradeOneController::class, 'showSubject']);
       Route::get('subjects/{subject}/articles/{semester}/{category}', [GradeOneController::class, 'subjectArticles']);
@@ -149,10 +149,22 @@ Route::put('/subjects/{id}', [SubjectController::class, 'update']);
 Route::delete('/subjects/{id}', [SubjectController::class, 'destroy']);
 
 // School Classes API Routes
-Route::apiResource('/classes', SchoolClassController::class);
-
+//Route::apiResource('/classes', SchoolClassController::class);
+Route::get('/school-classes', [SchoolClassController::class, 'index']);
+Route::post('/school-classes', [SchoolClassController::class, 'store']);
+Route::get('/school-classes/{id}', [SchoolClassController::class, 'show']);
+Route::put('/school-classes/{id}', [SchoolClassController::class, 'update']);
+Route::delete('/school-classes/{id}', [SchoolClassController::class, 'destroy']);
 // Articles API Routes
-Route::apiResource('/articles', ArticleController::class);
+
+Route::group(['prefix' => 'articles'], function () {
+  Route::get('/', [ArticleController::class, 'index']); // List all articles
+  Route::post('/', [ArticleController::class, 'store']); // Create a new article
+  Route::get('/{id}', [ArticleController::class, 'show']); // Get a specific article by ID
+  Route::put('/{id}', [ArticleController::class, 'update']); // Update an article
+  Route::delete('/{id}', [ArticleController::class, 'destroy']); // Delete an article
+  Route::get('/class/{grade_level}', [ArticleController::class, 'indexByClass']); // List articles by class (grade level)
+});
 
 // Open Routes
 Route::post('/register', [AuthController::class, 'register']);

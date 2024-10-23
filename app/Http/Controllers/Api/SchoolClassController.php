@@ -54,13 +54,13 @@ class SchoolClassController extends Controller
         $country = $request->input('country', 'jordan');
         $connection = $this->getConnection($country);
 
-        $class = DB::connection($connection)->table('school_classes')->where('id', $id)->first();
+        $schoolClass = DB::connection($connection)->table('school_classes')->where('id', $id)->first();
 
-        if (!$class) {
+        if (!$schoolClass) {
             return response()->json(['message' => 'Class not found'], 404);
         }
 
-        return response()->json($class);
+        return response()->json($schoolClass);
     }
 
     public function update(Request $request, $id)
