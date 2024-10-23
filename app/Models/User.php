@@ -23,8 +23,7 @@ class User extends Authenticatable
 
     public function isAdmin()
     {
-        // افترض أن لديك عمود `is_admin` في جدول `users`
-        return $this->is_admin; // يمكنك تعديل هذا بناءً على اسم العمود أو الطريقة التي تحدد بها المسؤول
+         return $this->is_admin;   
     }
     /**
      * The attributes that are mass assignable.

@@ -29,6 +29,7 @@ $icons = [
 
 // Get the selected database from the session
 $database = session('database', 'jo'); // Default to 'jo' if not set
+
 @endphp
 
 @extends('layouts/layoutFront')

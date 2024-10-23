@@ -3,7 +3,6 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-
 use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\SchoolClassController;
 use App\Http\Controllers\Api\SubjectController;
@@ -26,155 +25,182 @@ use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CalendarController;
 
-
-//home controller
-Route::post('/set-database', [HomeController::class, 'setDatabase']);
-Route::get('/', [HomeController::class, 'index']);
-Route::get('/about', [HomeController::class, 'about']);
-Route::get('/contact', [HomeController::class, 'contact']);
-
-Route::get('/calendar', [CalendarController::class, 'calendar']);
-Route::post('/calendar/event', [CalendarController::class, 'store']);
-Route::put('/calendar/event/{id}', [CalendarController::class, 'update']);
-Route::delete('/calendar/event/{id}', [CalendarController::class, 'destroy']);
-
-
-Route::get('/categories', [CategoryController::class, 'index']);
-Route::post('/categories', [CategoryController::class, 'store']);
-Route::get('/categories/{id}', [CategoryController::class, 'show']);
-Route::put('/categories/{id}', [CategoryController::class, 'update']);
-Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
-
-
-Route::post('/comments', [CommentController::class, 'store']);
-
-
-Route::get('/dashboard', [DashboardController::class, 'index']);
-
-
-Route::get('/files', [FileController::class, 'index']);
-Route::post('/files', [FileController::class, 'store']);
-Route::get('/files/{id}', [FileController::class, 'show']);
-Route::put('/files/{id}', [FileController::class, 'update']);
-Route::delete('/files/{id}', [FileController::class, 'destroy']);
-Route::get('/files/{id}/download', [FileController::class, 'downloadFile']);
-
-
-Route::get('/filter-files', [FilterController::class, 'index']);
-Route::get('/api/subjects/{classId}', [FilterController::class, 'getSubjectsByClass']);
-Route::get('/api/semesters/{subjectId}', [FilterController::class, 'getSemestersBySubject']);
-Route::get('/api/files/{semesterId}', [FilterController::class, 'getFileTypesBySemester']);
-
-Route::prefix('{database}')->group(function () {
-  Route::get('/news', [FrontendNewsController::class, 'index']);
-  Route::get('/news/{id}', [FrontendNewsController::class, 'show']);
-  Route::get('/news/category/{category}', [FrontendNewsController::class, 'category']);
-
-  Route::prefix('lesson')->group(function () {
-      Route::get('/', [GradeOneController::class, 'index'])->name('lesson.index');
-      Route::get('/{id}', [GradeOneController::class, 'show']);
-      Route::get('subjects/{subject}', [GradeOneController::class, 'showSubject']);
-      Route::get('subjects/{subject}/articles/{semester}/{category}', [GradeOneController::class, 'subjectArticles']);
-      Route::get('/articles/{article}', [GradeOneController::class, 'showArticle']);
-      Route::get('files/download/{id}', [GradeOneController::class, 'downloadFile']);
-  });
-});
-
-
-
-
-
-
-
-
-
-
-Route::post('/upload-image', [ImageUploadController::class, 'upload']);
-Route::post('/upload-file', [ImageUploadController::class, 'uploadFile']);
-
-
-Route::post('/set-database', [KeywordController::class, 'setDatabase']);
-Route::get('/keywords', [KeywordController::class, 'index']);
-Route::get('/keywords/{keyword}', [KeywordController::class, 'indexByKeyword']);
-
-
-Route::get('/messages', [MessageController::class, 'index']);
-Route::post('/messages', [MessageController::class, 'store']);
-Route::get('/messages/{id}', [MessageController::class, 'show']);
-Route::post('/messages/{id}/reply', [MessageController::class, 'reply']);
-Route::get('/messages/sent', [MessageController::class, 'sent']);
-Route::patch('/messages/{id}/mark-as-read', [MessageController::class, 'markAsRead']);
-Route::delete('/messages/{id}', [MessageController::class, 'delete']);
-Route::post('/messages/delete-selected', [MessageController::class, 'deleteSelected']);
-Route::patch('/messages/{id}/toggle-important', [MessageController::class, 'toggleImportant']);
-
-
-
-
-
-Route::get('/notifications', [NotificationController::class, 'index']);
-Route::patch('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead']);
-Route::patch('/notifications/mark-all-as-read', [NotificationController::class, 'markAllAsRead']);
-Route::delete('/notifications/delete-selected', [NotificationController::class, 'deleteSelected']);
-Route::post('/notifications/handle-actions', [NotificationController::class, 'handleActions']);
-Route::delete('/notifications/{id}', [NotificationController::class, 'delete']);
-
-
-Route::get('/permissions', [PermissionController::class, 'index']);
-Route::post('/permissions', [PermissionController::class, 'store']);
-Route::get('/permissions/{id}', [PermissionController::class, 'show']);
-Route::put('/permissions/{id}', [PermissionController::class, 'update']);
-Route::delete('/permissions/{id}', [PermissionController::class, 'destroy']);
-
-
-Route::post('/reactions', [ReactionController::class, 'store']);
-
-
-Route::get('/roles', [RoleController::class, 'index']);
-Route::post('/roles', [RoleController::class, 'store']);
-Route::get('/roles/{id}', [RoleController::class, 'show']);
-Route::put('/roles/{id}', [RoleController::class, 'update']);
-Route::delete('/roles/{id}', [RoleController::class, 'destroy']);
-
-Route::get('/semesters', [SemesterController::class, 'index']);
-Route::post('/semesters', [SemesterController::class, 'store']);
-Route::get('/semesters/{id}', [SemesterController::class, 'show']);
-Route::put('/semesters/{id}', [SemesterController::class, 'update']);
-Route::delete('/semesters/{id}', [SemesterController::class, 'destroy']);
-
-Route::get('/subjects', [SubjectController::class, 'index']);
-Route::post('/subjects', [SubjectController::class, 'store']);
-Route::get('/subjects/{id}', [SubjectController::class, 'show']);
-Route::put('/subjects/{id}', [SubjectController::class, 'update']);
-Route::delete('/subjects/{id}', [SubjectController::class, 'destroy']);
-
-// School Classes API Routes
-//Route::apiResource('/classes', SchoolClassController::class);
-Route::get('/school-classes', [SchoolClassController::class, 'index']);
-Route::post('/school-classes', [SchoolClassController::class, 'store']);
-Route::get('/school-classes/{id}', [SchoolClassController::class, 'show']);
-Route::put('/school-classes/{id}', [SchoolClassController::class, 'update']);
-Route::delete('/school-classes/{id}', [SchoolClassController::class, 'destroy']);
-// Articles API Routes
-
-Route::group(['prefix' => 'articles'], function () {
-  Route::get('/', [ArticleController::class, 'index']); // List all articles
-  Route::post('/', [ArticleController::class, 'store']); // Create a new article
-  Route::get('/{id}', [ArticleController::class, 'show']); // Get a specific article by ID
-  Route::put('/{id}', [ArticleController::class, 'update']); // Update an article
-  Route::delete('/{id}', [ArticleController::class, 'destroy']); // Delete an article
-  Route::get('/class/{grade_level}', [ArticleController::class, 'indexByClass']); // List articles by class (grade level)
-});
-
 // Open Routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 // Protected Routes
 Route::group(['middleware' => 'auth:sanctum'], function () {
-  Route::get('/profile', [AuthController::class, 'profile']);
-  Route::get('/logout', [AuthController::class, 'logout']);
+    Route::get('/profile', [AuthController::class, 'profile']);
+    Route::get('/logout', [AuthController::class, 'logout']);
 });
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
+
+// Setting Database Connection
+Route::post('/set-database', [HomeController::class, 'setDatabase'])->name('api.setDatabase');
+
+// General Upload Routes
+Route::post('/upload-image', [ImageUploadController::class, 'upload'])->name('api.upload.image');
+Route::post('/upload-file', [ImageUploadController::class, 'uploadFile'])->name('api.upload.file');
+
+// Authenticated and Dashboard Routes
+Route::group(['middleware' => ['auth:sanctum']], function () {
+    Route::prefix('dashboard')->group(function () {
+        // Dashboard Index
+        Route::get('/', [DashboardController::class, 'index'])->name('api.dashboard.index');
+
+        // School Classes API Routes
+        Route::apiResource('/classes', SchoolClassController::class)->middleware(['can:manage classes'])->names([
+            'index' => 'api.classes.index',
+            'store' => 'api.classes.store',
+            'show' => 'api.classes.show',
+            'update' => 'api.classes.update',
+            'destroy' => 'api.classes.destroy',
+        ]);
+
+        // Subject API Routes
+        Route::apiResource('/subjects', SubjectController::class)->middleware(['can:manage subjects'])->names([
+            'index' => 'api.subjects.index',
+            'store' => 'api.subjects.store',
+            'show' => 'api.subjects.show',
+            'update' => 'api.subjects.update',
+            'destroy' => 'api.subjects.destroy',
+        ]);
+
+        // Semester API Routes
+        Route::apiResource('/semesters', SemesterController::class)->names([
+            'index' => 'api.semesters.index',
+            'store' => 'api.semesters.store',
+            'show' => 'api.semesters.show',
+            'update' => 'api.semesters.update',
+            'destroy' => 'api.semesters.destroy',
+        ]);
+
+        // Articles API Routes
+        Route::apiResource('/articles', ArticleController::class)->names([
+            'index' => 'api.articles.index',
+            'store' => 'api.articles.store',
+            'show' => 'api.articles.show',
+            'update' => 'api.articles.update',
+            'destroy' => 'api.articles.destroy',
+        ]);
+        Route::get('/class/{grade_level}', [ArticleController::class, 'indexByClass'])->name('api.articles.forClass');
+
+        // File API Routes
+        Route::apiResource('/files', FileController::class)->names([
+            'index' => 'api.files.index',
+            'store' => 'api.files.store',
+            'show' => 'api.files.show',
+            'update' => 'api.files.update',
+            'destroy' => 'api.files.destroy',
+        ]);
+        Route::get('/files/{id}/download', [FileController::class, 'downloadFile'])->name('api.files.download');
+
+        // Categories API Routes
+        Route::apiResource('/categories', CategoryController::class)->names([
+            'index' => 'api.categories.index',
+            'store' => 'api.categories.store',
+            'show' => 'api.categories.show',
+            'update' => 'api.categories.update',
+            'destroy' => 'api.categories.destroy',
+        ]);
+
+        // News API Routes
+        Route::apiResource('/news', NewsController::class)->names([
+            'index' => 'api.news.index',
+            'store' => 'api.news.store',
+            'show' => 'api.news.show',
+            'update' => 'api.news.update',
+            'destroy' => 'api.news.destroy',
+        ]);
+
+        // Messages API Routes
+        Route::apiResource('/messages', MessageController::class)->names([
+            'index' => 'api.messages.index',
+            'store' => 'api.messages.store',
+            'show' => 'api.messages.show',
+            'update' => 'api.messages.update',
+            'destroy' => 'api.messages.destroy',
+        ]);
+
+        // Notifications API Routes
+        Route::apiResource('/notifications', NotificationController::class)->names([
+            'index' => 'api.notifications.index',
+            'store' => 'api.notifications.store',
+            'show' => 'api.notifications.show',
+            'update' => 'api.notifications.update',
+            'destroy' => 'api.notifications.destroy',
+        ]);
+
+        // Calendar API Routes
+        Route::apiResource('/calendar', CalendarController::class)->names([
+            'index' => 'api.calendar.index',
+            'store' => 'api.calendar.store',
+            'show' => 'api.calendar.show',
+            'update' => 'api.calendar.update',
+            'destroy' => 'api.calendar.destroy',
+        ]);
+
+        // Roles, Permissions, Reactions Routes
+        Route::apiResource('/roles', RoleController::class)->names([
+          'index' => 'api.roles.index',
+          'store' => 'api.roles.store',
+          'show' => 'api.roles.show',
+          'update' => 'api.roles.update',
+          'destroy' => 'api.roles.destroy',
+      ]);
+
+      Route::apiResource('/permissions', PermissionController::class)->names([
+        'index' => 'api.permissions.index',
+        'store' => 'api.permissions.store',
+        'show' => 'api.permissions.show',
+        'update' => 'api.permissions.update',
+        'destroy' => 'api.permissions.destroy',
+    ]);
+
+    Route::apiResource('/reactions', ReactionController::class)->names([
+      'index' => 'api.reactions.index',
+      'store' => 'api.reactions.store',
+      'show' => 'api.reactions.show',
+      'update' => 'api.reactions.update',
+      'destroy' => 'api.reactions.destroy',
+  ]);
+
+
+        // Comments Route
+        Route::post('/comments', [CommentController::class, 'store'])->name('api.comments.store');
+    });
+});
+
+// Home Controller
+Route::get('/', [HomeController::class, 'index']);
+Route::get('/about', [HomeController::class, 'about']);
+Route::get('/contact', [HomeController::class, 'contact']);
+
+// Filter Routes
+Route::get('/filter-files', [FilterController::class, 'index']);
+Route::get('/api/subjects/{classId}', [FilterController::class, 'getSubjectsByClass']);
+Route::get('/api/semesters/{subjectId}', [FilterController::class, 'getSemestersBySubject']);
+Route::get('/api/files/{semesterId}', [FilterController::class, 'getFileTypesBySemester']);
+
+// Database-Specific Routes (by prefix)
+Route::prefix('{database}')->group(function () {
+    Route::get('/news', [FrontendNewsController::class, 'index']);
+    Route::get('/news/{id}', [FrontendNewsController::class, 'show']);
+    Route::get('/news/category/{category}', [FrontendNewsController::class, 'category']);
+
+    Route::prefix('lesson')->group(function () {
+        Route::get('/', [GradeOneController::class, 'index'])->name('api.lesson.index');
+        Route::get('/{id}', [GradeOneController::class, 'show']);
+        Route::get('subjects/{subject}', [GradeOneController::class, 'showSubject']);
+        Route::get('subjects/{subject}/articles/{semester}/{category}', [GradeOneController::class, 'subjectArticles']);
+        Route::get('/articles/{article}', [GradeOneController::class, 'showArticle']);
+        Route::get('files/download/{id}', [GradeOneController::class, 'downloadFile']);
+    });
+});
+
+// Keywords Routes
+Route::get('/keywords', [KeywordController::class, 'index']);
+Route::get('/keywords/{keyword}', [KeywordController::class, 'indexByKeyword']);

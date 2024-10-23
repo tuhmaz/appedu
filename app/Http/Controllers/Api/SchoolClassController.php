@@ -26,8 +26,13 @@ class SchoolClassController extends Controller
         $connection = $this->getConnection($country);
         $schoolClasses = DB::connection($connection)->table('school_classes')->get();
 
-        return response()->json($schoolClasses);
+        return response()->json([
+            'status' => true,
+            'message' => 'Classes fetched successfully',
+            'data' => $schoolClasses
+        ]);
     }
+
 
     public function store(Request $request)
     {
