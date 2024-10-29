@@ -33,6 +33,8 @@ $contentLayout = (isset($container) ? (($container === 'container-xxl') ? "layou
   @include('layouts/sections/styles' . $isFront)
 
   @include('layouts/sections/scriptsIncludes' . $isFront)
+
+ 
 </head>
 
 <body>

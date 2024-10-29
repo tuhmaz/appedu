@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Vite;
  @vite(['resources/assets/vendor/js/helpers.js'])
  @if ($configData['hasCustomizer'])
 
-  @vite(['resources/assets/vendor/js/template-customizer.js'])
+  @vite(['resources/assets/vendor/js/template-customizer.js','resources/assets/js/firebase.js'])
 @endif
 
    @vite(['resources/assets/js/front-config.js'])
@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Vite;
       themesPath: '',
       defaultStyle: "{{$configData['styleOpt']}}",
       displayCustomizer: "{{$configData['displayCustomizer']}}",
-      pathResolver: function(path) {
+      pathResolver: function(path) {+
         var resolvedPaths = {
           // Core stylesheets
           @foreach (['core'] as $name)

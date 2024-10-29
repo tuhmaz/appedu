@@ -38,6 +38,7 @@ Route::group(['middleware' => 'switch_database'], function () {
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::post('/set-database', [HomeController::class, 'setDatabase'])->name('setDatabase');
 
+
 Route::post('/upload-image', [ImageUploadController::class, 'upload'])->name('upload.image');
 Route::post('/upload-file', [ImageUploadController::class, 'uploadFile'])->name('upload.file');
 
@@ -180,4 +181,3 @@ Route::prefix('{database}')->group(function () {
 
   Route::get('/download/{file}', [FileController::class, 'showDownloadPage'])->name('download.page');
   Route::get('/download-wait/{file}', [FileController::class, 'processDownload'])->name('download.wait');
-  

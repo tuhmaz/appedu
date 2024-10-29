@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+
 
 class UserController extends Controller
 {
@@ -217,5 +219,18 @@ class UserController extends Controller
             $user->notify(new RoleAssigned(null, $permission, 'assigned'));
             Log::info("Notification sent for permission {$permission} assigned to user {$user->name}");
         }
+    }
+
+    public function storeFirebaseToken(Request $request)
+    {
+        $request->validate([
+            'firebase_token' => 'required|string',
+        ]);
+
+        // تحديث أو حفظ Firebase Token للمستخدم الحالي
+        $user = Auth::user();
+        $user->saveFirebaseToken($request->firebase_token);
+
+        return response()->json(['message' => 'Firebase token saved successfully']);
     }
 }

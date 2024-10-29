@@ -24,6 +24,11 @@ use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CalendarController;
+use App\Http\Controllers\UserController;
+
+
+Route::middleware('auth:sanctum')->post('/save-firebase-token', [UserController::class, 'storeFirebaseToken']);
+
 
 // Open Routes
 Route::post('/register', [AuthController::class, 'register']);

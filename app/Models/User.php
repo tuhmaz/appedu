@@ -23,7 +23,7 @@ class User extends Authenticatable
 
     public function isAdmin()
     {
-         return $this->is_admin;   
+         return $this->is_admin;
     }
     /**
      * The attributes that are mass assignable.
@@ -66,5 +66,18 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function saveFirebaseToken($firebaseToken)
+    {
+        $this->tokens()->updateOrCreate(
+            ['name' => 'firebase_token'],
+            ['token' => $firebaseToken, 'abilities' => ['*']]
+        );
+    }
+
+    public function getFirebaseToken()
+    {
+        return $this->tokens()->where('name', 'firebase_token')->value('token');
     }
 }
