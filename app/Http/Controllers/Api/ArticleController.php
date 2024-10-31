@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use OneSignal;
 
 class ArticleController extends Controller
 {
@@ -116,7 +117,11 @@ class ArticleController extends Controller
                     'file_Name' => $filename,
                 ]);
             }
-
+            OneSignal::sendNotificationToAll([
+              'headings' => ['en' => "New Article Published"],
+              'contents' => ['en' => "Click to read the latest article!"],
+              'url' => url("/articles/{$article->id}") // رابط المقالة
+          ]);
             $users = User::all();
             foreach ($users as $user) {
                 $user->notify(new ArticleNotification($article));

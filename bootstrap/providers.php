@@ -9,5 +9,6 @@ return [
     App\Providers\SettingsServiceProvider::class,
     Spatie\Permission\PermissionServiceProvider::class,
     App\Providers\SettingsServiceProvider::class,
-    
+    Berkayk\OneSignal\OneSignalServiceProvider::class,
+
 ];

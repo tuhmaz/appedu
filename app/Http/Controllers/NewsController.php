@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\ImageManagerStatic as Image;
-
+use OneSignal;
 
 use App\Notifications\FirebaseMessageNotification;
 class NewsController extends Controller
@@ -153,9 +153,18 @@ class NewsController extends Controller
       if ($request->keywords) {
         $this->attachKeywords($news, $request->input('keywords'), $connection);
       }
-    });
 
-   
+       // إرسال إشعار باستخدام OneSignal عند إضافة خبر جديد
+       OneSignal::sendNotificationToAll(
+        "تم نشر خبر جديد: {$news->title}",
+      //  $url = route('news.show', ['country' => $country, 'id' => $news->id]),
+        $data = null,
+        $buttons = null,
+        $schedule = null
+    );
+});
+
+
     return redirect()->route('news.index', ['country' => $country])
       ->with('success', 'News Created Successfully');
   }

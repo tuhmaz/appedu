@@ -128,6 +128,7 @@ return [
   'aliases' => [
     // Other aliases...
     'Helper' => App\Helpers\Helpers::class,
+    'OneSignal' => Berkayk\OneSignal\OneSignalFacade::class,
 
   ],
 

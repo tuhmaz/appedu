@@ -1,4 +1,15 @@
 <?php return array (
+  'berkayk/onesignal-laravel' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Berkayk\\OneSignal\\OneSignalServiceProvider',
+    ),
+    'aliases' => 
+    array (
+      'OneSignal' => 'Berkayk\\OneSignal\\OneSignalFacade',
+    ),
+  ),
   'intervention/image' => 
   array (
     'providers' => 

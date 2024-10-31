@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use OneSignal;
 
 class ArticleController extends Controller
 {
@@ -129,12 +130,23 @@ class ArticleController extends Controller
                   'file_Name' => $filename,
               ]);
           }
+            OneSignal::sendNotificationToAll(
+              "تم نشر مقال جديد: {$article->title} (الصف: " . SchoolClass::on($connection)->find($article->grade_level)->grade_name . ")",
+              $data =null,
+              $buttons = null,
+              $schedule = null
+            );
+
+
+
+
 
           $users = User::all();
           foreach ($users as $user) {
               $user->notify(new ArticleNotification($article));
           }
       });
+
 
       return redirect()->route('articles.index', ['country' => $country])->with('success', 'Article created successfully.');
   }
