@@ -85,7 +85,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'),'verified',]
     Route::resource('articles', ArticleController::class)->except(['show'])->middleware(['can:manage articles']);
      Route::get('articles/class/{grade_level}', [ArticleController::class, 'indexByClass'])->name('articles.forClass')->middleware('can:manage articles');
     Route::get('articles/{article}', [ArticleController::class, 'show'])->name('articles.show')->middleware('can:manage articles');
-    Route::put('articles/{article}', [ArticleController::class, 'update'])->name('articles.update')->middleware('can:manage articles');
+    
 
     // Files routes
     Route::resource('files', FileController::class);
