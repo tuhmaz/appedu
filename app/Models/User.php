@@ -68,16 +68,4 @@ class User extends Authenticatable
         ];
     }
 
-    public function saveFirebaseToken($firebaseToken)
-    {
-        $this->tokens()->updateOrCreate(
-            ['name' => 'firebase_token'],
-            ['token' => $firebaseToken, 'abilities' => ['*']]
-        );
-    }
-
-    public function getFirebaseToken()
-    {
-        return $this->tokens()->where('name', 'firebase_token')->value('token');
-    }
 }

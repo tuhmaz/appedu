@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\ImageManagerStatic as Image;
 
+
+use App\Notifications\FirebaseMessageNotification;
 class NewsController extends Controller
 {
   private function getConnection(string $country): string
@@ -115,6 +117,7 @@ class NewsController extends Controller
       'author_id' => 'nullable|exists:users,id'
     ]);
 
+
     $country = $request->input('country', 'jordan');
     $connection = $this->getConnection($country);
 
@@ -152,6 +155,7 @@ class NewsController extends Controller
       }
     });
 
+   
     return redirect()->route('news.index', ['country' => $country])
       ->with('success', 'News Created Successfully');
   }

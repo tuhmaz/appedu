@@ -10,8 +10,6 @@
   "require": {
     "php": "^8.2",
     "intervention/image": "^2.7",
-    "kreait/firebase-php": "^7.15",
-    "kreait/laravel-firebase": "*",
     "laravel/framework": "^11.0",
     "laravel/jetstream": "^5.1",
     "laravel/passport": "^12.0",

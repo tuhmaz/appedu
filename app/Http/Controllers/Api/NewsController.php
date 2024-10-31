@@ -11,9 +11,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Notification;
-use App\Notifications\FirebaseMessageNotification;
 use Intervention\Image\ImageManagerStatic as Image;
+
 
 class NewsController extends Controller
 {
@@ -64,6 +63,7 @@ class NewsController extends Controller
 
     public function store(Request $request)
     {
+
         $validated = $request->validate([
             'title' => 'required|max:60',
             'description' => 'required',
@@ -103,11 +103,6 @@ class NewsController extends Controller
         if ($request->keywords) {
             $this->attachKeywords($news, $request->input('keywords'), $connection);
         }
-
-        // إرسال إشعار عند إنشاء الخبر
-        $title = 'خبر جديد تم إضافته';
-        $body = 'تمت إضافة خبر جديد بعنوان: ' . $news->title;
-        Notification::route('firebase', 'all')->notify(new FirebaseMessageNotification($title, $body));
 
         return response()->json(['message' => 'News created successfully', 'news' => $news], 201);
     }

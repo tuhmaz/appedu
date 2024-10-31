@@ -221,16 +221,4 @@ class UserController extends Controller
         }
     }
 
-    public function storeFirebaseToken(Request $request)
-    {
-        $request->validate([
-            'firebase_token' => 'required|string',
-        ]);
-
-        // تحديث أو حفظ Firebase Token للمستخدم الحالي
-        $user = Auth::user();
-        $user->saveFirebaseToken($request->firebase_token);
-
-        return response()->json(['message' => 'Firebase token saved successfully']);
-    }
 }

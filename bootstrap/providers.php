@@ -9,5 +9,5 @@ return [
     App\Providers\SettingsServiceProvider::class,
     Spatie\Permission\PermissionServiceProvider::class,
     App\Providers\SettingsServiceProvider::class,
-    Kreait\Laravel\Firebase\ServiceProvider::class,
+    
 ];
