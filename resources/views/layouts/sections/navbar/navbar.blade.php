@@ -96,7 +96,7 @@ $navbarDetached = ($navbarDetached ?? '');
             <a class="nav-link btn btn-text-secondary btn-icon rounded-pill btn-icon dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
               <i class='ti ti-layout-grid-add ti-md'></i>
             </a>
-            <div class="dropdown-menu dropdown-menu-end p-0">
+            <div class="dropdown-menu dropdown-menu-end p-0" style="left: 0px;">
               <div class="dropdown-menu-header border-bottom">
                 <div class="dropdown-header d-flex align-items-center py-3">
                   <h6 class="mb-0 me-auto">Shortcuts</h6>
@@ -153,7 +153,7 @@ $navbarDetached = ($navbarDetached ?? '');
                   </div>
                 </div>
 
-                
+
               </div>
             </div>
           </li>
@@ -169,7 +169,7 @@ $navbarDetached = ($navbarDetached ?? '');
             @endif
         </span>
     </a>
-    <ul class="dropdown-menu dropdown-menu-end p-0">
+    <ul class="dropdown-menu dropdown-menu-end p-0" style="left: -100; left: 0px;">
         <li class="dropdown-menu-header border-bottom">
             <div class="dropdown-header d-flex align-items-center py-3">
                 <h6 class="mb-0 me-auto">Notifications</h6>
@@ -243,7 +243,7 @@ $navbarDetached = ($navbarDetached ?? '');
     <img src="{{ Auth::user() && Auth::user()->profile_photo_path ? asset('storage/' . Auth::user()->profile_photo_path) : asset($randomAvatar) }}" alt="Avatar" class="rounded-circle">
 </div>
 </a>
-<ul class="dropdown-menu dropdown-menu-end">
+<ul class="dropdown-menu dropdown-menu-end" style="left: 0px;">
     <li>
         <a class="dropdown-item mt-0" href="{{ route('users.show', Auth::user()->id) }}">
             <div class="d-flex align-items-center">

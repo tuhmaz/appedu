@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Storage;
                 </a>
             </div>
             <div class="card-body">
-                <form action="{{ route('articles.update', ['id' => $article->id, 'country' => $country]) }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('articles.update', ['article' => $article->id, 'country' => $country])  }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
 

@@ -79,7 +79,7 @@ $currentRouteName = Route::currentRouteName();
                 <img src="{{ Auth::user()->profile_photo_path ? asset('storage/' . Auth::user()->profile_photo_path) : asset($randomAvatar) }}" alt="Avatar" class="rounded-circle" loading="lazy">
               </div>
             </a>
-            <ul class="dropdown-menu dropdown-menu-end">
+            <ul class="dropdown-menu dropdown-menu-end" style="left: -50;left: -100;left: -70;left: 0px;">
               <li><a class="dropdown-item mt-0" href="{{ route('users.show', Auth::user()->id) }}">
                   <div class="d-flex align-items-center">
                     <div class="flex-shrink-0 me-2">

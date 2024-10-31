@@ -7,7 +7,7 @@ $(document).ready(function() {
     disableDragAndDrop: true,
 
     height: 300,
-    lang: 'ar-AR', // تعيين اللغة إلى العربية
+    lang: 'ar-AR', 
     popover: {
       image: [
         ['image', ['resizeFull', 'resizeHalf', 'resizeQuarter', 'resizeNone']],

@@ -3,13 +3,13 @@
     {
       "url": "/",
       "name": "Home",
-      "icon": "menu-icon tf-icons ti ti-smart-home",
+      "icon": "menu-icon tf-icons ti ti-home",
       "slug": "pages-home"
     },
     {
       "url": "dashboard",
-      "icon": "menu-icon tf-icons ti ti-file",
       "name": "Dashboard",
+      "icon": "menu-icon tf-icons ti ti-dashboard",
       "slug": "dashboard"
     },
     {
@@ -31,7 +31,7 @@
     },
     {
       "name": "Roles & Permissions",
-      "icon": "menu-icon tf-icons ti ti-settings",
+      "icon": "menu-icon tf-icons ti ti-lock",
       "slug": "app-access",
       "permission": "manage permissions",
       "submenu": [
@@ -49,10 +49,9 @@
         }
       ]
     },
-
     {
       "name": "Classes",
-      "icon": "menu-icon tf-icons ti ti-building",
+      "icon": "menu-icon tf-icons ti ti-school",
       "slug": "app-classes",
       "permission": "manage classes",
       "submenu": [
@@ -124,7 +123,7 @@
     },
     {
       "name": "Files",
-      "icon": "menu-icon tf-icons ti ti-folder",
+      "icon": "menu-icon tf-icons ti ti-file",
       "slug": "app-files",
       "submenu": [
         {
@@ -141,7 +140,7 @@
     },
     {
       "name": "Categories",
-      "icon": "menu-icon tf-icons ti ti-news",
+      "icon": "menu-icon tf-icons ti ti-tags",
       "slug": "app-categories",
       "permission": "manage Categories",
       "submenu": [
@@ -157,7 +156,6 @@
         }
       ]
     },
-
     {
       "name": "News",
       "icon": "menu-icon tf-icons ti ti-news",
@@ -178,7 +176,7 @@
     },
     {
       "name": "Messages",
-      "icon": "menu-icon tf-icons ti ti-mail",
+      "icon": "menu-icon tf-icons ti ti-message",
       "slug": "app-messages",
       "submenu": [
         {
@@ -223,7 +221,7 @@
     },
     {
       "name": "Sitemap",
-      "icon": "menu-icon tf-icons ti ti-sitemap",
+      "icon": "menu-icon tf-icons ti ti-map",
       "slug": "app-sitemap",
       "permission": "manage sitemap",
       "submenu": [
@@ -234,23 +232,22 @@
         },
         {
           "url": "dashboard/sitemap/manage",
-          "name": "manage",
+          "name": "Manage",
           "slug": "app-sitemap-manage"
         }
       ]
     },
     {
-      "name": "calendar",
-      "icon": "menu-icon tf-icons ti ti-building",
+      "name": "Calendar",
+      "icon": "menu-icon tf-icons ti ti-calendar-event",
       "slug": "app-calendar",
       "permission": "manage calendar",
       "submenu": [
         {
           "url": "dashboard/calendar",
-          "name": "calendar",
+          "name": "Calendar",
           "slug": "app-calendar-all"
         }
-
       ]
     }
   ]

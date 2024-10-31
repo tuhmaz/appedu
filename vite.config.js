@@ -1,11 +1,10 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import html from '@rollup/plugin-html';
-import { terser } from 'rollup-plugin-terser';  // لضغط JavaScript باستخدام Terser
-import { visualizer } from 'rollup-plugin-visualizer'; // لإضافة التحليل
-import cssnano from 'cssnano'; // لضغط CSS
-import purgecss from '@fullhuman/postcss-purgecss'; // لـ PurgeCSS
-import { glob } from 'glob'; // لجلب الملفات باستخدام glob
+import { glob } from 'glob';
+import { terser } from 'rollup-plugin-terser';
+import { visualizer } from 'rollup-plugin-visualizer';
+
 
 /**
  * Get Files from a directory
@@ -15,7 +14,6 @@ import { glob } from 'glob'; // لجلب الملفات باستخدام glob
 function GetFilesArray(query) {
   return glob.sync(query);
 }
-
 /**
  * Js Files
  */
@@ -61,9 +59,7 @@ export default defineConfig({
     laravel({
       input: [
         'resources/css/app.css',
-        'resources/css/custom.css',
         'resources/assets/css/edu.css',
-        
         'resources/js/app.js',
         ...pageJsFiles,
         ...vendorJsFiles,
@@ -74,47 +70,16 @@ export default defineConfig({
         ...FontsScssFiles
       ],
       refresh: true
-    }),
-    html(),
-    terser(), // لضغط ملفات JS
 
-    libsWindowAssignment()
+    }),
+
+    html(),
+    libsWindowAssignment(),
+    terser()
   ],
 
-  build: {
-    rollupOptions: {
-      plugins: [
-        terser(), // لضغط ملفات JavaScript
-      ]
-    }
+  css: {
+    postcss: './postcss.config.cjs', 
   },
 
-  css: {
-    postcss: {
-      plugins: [
-        // PurgeCSS يتم استخدامه فقط في بيئة الإنتاج
-        process.env.NODE_ENV === 'production'
-          ? purgecss({
-              content: [
-                './resources/**/*.blade.php',
-                './resources/**/*.js',
-                './resources/**/*.vue',
-                './resources/**/*.html',
-              ],
-              safelist: [/^note-/, 'summernote', 'note-editable','btn-outline-dark', 'bubbly-button', 'd-flex', 'justify-content-center', 'align-items-center'],  // تأكد من إضافة الفئات الخاصة بمحرر النصوص هنا
-
-              defaultExtractor: content => content.match(/[\w-/:]+(?<!:)/g) || [],
-            })
-          : null, // فقط للإنتاج
-        cssnano({ // لضغط CSS
-          preset: ['default', {
-            discardComments: {
-              removeAll: true, // إزالة جميع التعليقات
-            },
-            reduceIdents: false, // تعطيل تقليل الأسماء المكررة
-          }],
-        }),
-      ].filter(Boolean), // لتجنب أي مكونات غير مفعلة
-    }
-  }
 });
