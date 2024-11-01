@@ -29,7 +29,10 @@ use App\Http\Controllers\KeywordController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\Auth\SocialAuthController;
 
+Route::get('/auth/google', [SocialAuthController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
 
 Route::group(['middleware' => 'switch_database'], function () {
   Route::resource('school_classes', SchoolClassController::class);
@@ -85,7 +88,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'),'verified',]
     Route::resource('articles', ArticleController::class)->except(['show'])->middleware(['can:manage articles']);
      Route::get('articles/class/{grade_level}', [ArticleController::class, 'indexByClass'])->name('articles.forClass')->middleware('can:manage articles');
     Route::get('articles/{article}', [ArticleController::class, 'show'])->name('articles.show')->middleware('can:manage articles');
-    
+
 
     // Files routes
     Route::resource('files', FileController::class);

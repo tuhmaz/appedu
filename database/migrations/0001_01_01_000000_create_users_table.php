@@ -23,8 +23,9 @@ return new class extends Migration
             $table->string('country')->nullable(); // البلد
             $table->text('social_links')->nullable(); // مواقع التواصل الاجتماعي
             $table->text('bio')->nullable(); // نبذة عن العضو
-            $table->string('status')->default('offline');// الحالة: متواجد أم لا
+            $table->string('status')->default('offline'); // الحالة: متواجد أم لا
             $table->timestamp('last_activity')->nullable();
+            $table->string('google_id')->nullable()->unique(); // معرف Google
             $table->rememberToken();
             $table->foreignId('current_team_id')->nullable();
             $table->string('profile_photo_path', 2048)->nullable();

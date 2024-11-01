@@ -19,7 +19,7 @@ $configData = Helper::appClasses();
 <div class="authentication-wrapper authentication-cover">
   <!-- Logo -->
   <a href="{{url('/')}}" class="app-brand auth-cover-brand">
-    <span class="app-brand-logo edu">@include('_partials.macros',['height'=>20,'withbg' => "fill: #fff;"])</span>
+    <span class="app-brand-logo edu"><img src="{{ asset('storage/' . config('settings.site_logo')) }}" alt="LogoWebsite" style="max-width: 20px; height: auto;"></span>
     <span class="app-brand-text edu text-heading fw-bold">{{config('settings.site_name')}}</span>
   </a>
   <!-- /Logo -->
@@ -40,11 +40,11 @@ $configData = Helper::appClasses();
       <div class="w-px-400 mx-auto mt-12 mt-5">
         <h4 class="mb-1">Verify your email ✉️</h4>
         @if (session('status') == 'verification-link-sent')
-          <div class="alert alert-success" role="alert">
-            <div class="alert-body">
-              A new verification link has been sent to the email address you provided during registration.
-            </div>
+        <div class="alert alert-success" role="alert">
+          <div class="alert-body">
+            A new verification link has been sent to the email address you provided during registration.
           </div>
+        </div>
         @endif
         <p class="text-start mb-0">
           Account activation link sent to your email address: <span class="h6">{{Auth::user()->email}}</span> Please follow the link inside to continue.
