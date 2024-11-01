@@ -18,7 +18,7 @@ $configData = Helper::appClasses();
 <div class="authentication-wrapper authentication-cover">
   <!-- Logo -->
   <a href="{{url('/')}}" class="app-brand auth-cover-brand">
-    <span class="app-brand-logo edu">@include('_partials.macros',['height'=>20,'withbg' => "fill: #fff;"])</span>
+    <span class="app-brand-logo edu"><img src="{{ asset('storage/' . config('settings.site_logo')) }}" alt="LogoWebsite" style="max-width: 20px; height: auto;"></span>
     <span class="app-brand-text edu text-heading fw-bold">{{config('settings.site_name')}}</span>
   </a>
   <!-- /Logo -->
@@ -69,8 +69,8 @@ $configData = Helper::appClasses();
                 <button type="button" class="btn btn-outline-secondary">Use an authentication code</button>
               </div>
               <x-button class="px-3">Log in</x-button>
-          </div>
-        </form>
+            </div>
+          </form>
         </div>
       </div>
     </div>
