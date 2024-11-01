@@ -128,19 +128,44 @@ $icons = [
                     <div class="day-label">{{ __($day) }}</div>
                     @endforeach
                     @php
+                    // إعداد التواريخ للشهر الحالي فقط
                     $currentMonth = now()->month;
                     $currentYear = now()->year;
                     $startOfMonth = now()->startOfMonth();
-                    $startOfWeek = $startOfMonth->copy()->startOfWeek(Carbon\Carbon::SATURDAY);
                     $endOfMonth = now()->endOfMonth();
-                    $endOfWeek = $endOfMonth->copy()->endOfWeek(Carbon\Carbon::FRIDAY);
-                    $currentDate = $startOfWeek->copy();
-                    @endphp
+                    $currentDate = $startOfMonth->copy();
 
-                    @while ($currentDate <= $endOfWeek)
-                      @php
-                      $hasEvent=$events->contains(fn($event) => $event->event_date == $currentDate->format('Y-m-d'));
+                    $firstDayOfWeek = $startOfMonth->dayOfWeek;
+                    if ($firstDayOfWeek == 5) {
+                    $firstDayOfWeek = 6; // Adjust for Friday being the start of the week
+                    } else {
+                    $firstDayOfWeek++;
+                    }
+
+                    for ($i = 0; $i < $firstDayOfWeek; $i++) {
+                      echo '<div class="day dull"></div>' ;
+                      }
+
+                      while ($currentDate->month == $currentMonth) {
+                      $hasEvent = $events->contains(fn($event) => $event->event_date == $currentDate->format('Y-m-d'));
                       $eventDetails = $hasEvent ? $events->firstWhere('event_date', $currentDate->format('Y-m-d')) : null;
+
+                      if ($hasEvent) {
+                      echo '<div class="day event" data-title="' . $eventDetails->title . '" data-description="' . $eventDetails->description . '" data-date="' . $eventDetails->event_date . '">
+                        <div class="content">' . $currentDate->day . '</div>
+                      </div>';
+                      } elseif ($currentDate->isToday()) {
+                      echo '<div class="day today">
+                        <div class="content">' . $currentDate->day . '</div>
+                      </div>';
+                      } else {
+                      echo '<div class="day">
+                        <div class="content">' . $currentDate->day . '</div>
+                      </div>';
+                      }
+
+                      $currentDate->addDay();
+                      }
                       @endphp
 
                       <div class="day {{ $currentDate->isToday() ? 'today' : '' }} {{ $hasEvent ? 'has-event' : '' }}"
@@ -158,7 +183,7 @@ $icons = [
                       @php
                       $currentDate->addDay();
                       @endphp
-                      @endwhile
+
                   </div>
                 </div>
               </div>
@@ -216,10 +241,10 @@ $icons = [
                     </select>
                   </div>
                 </div>
-                <div class="text-center">
-                  <button type="submit" class="btn btn-primary">{{ __('Filter Files') }}</button>
-                  <button type="reset" class="btn btn-secondary">{{ __('Reset') }}</button>
-                </div>
+                <div class="text-center mt-4">
+  <button type="submit" class="btn btn-primary w-100 mb-2" style="max-width: 300px;">{{ __('Filter Files') }}</button>
+  <button type="reset" class="btn btn-secondary w-100" style="max-width: 300px;">{{ __('Reset') }}</button>
+</div>
               </form>
             </div>
           </div>

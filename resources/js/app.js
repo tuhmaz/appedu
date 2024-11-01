@@ -5,11 +5,9 @@ import './bootstrap';
 import.meta.glob([
   '../assets/img/**',
   // '../assets/json/**',
-   '../assets/vendor/fonts/**',
-
+  '../assets/vendor/fonts/**',
 ]);
 
-import OneSignal from 'OneSignal';
 
 window.OneSignal = window.OneSignal || [];
 OneSignal.push(function() {

@@ -19,7 +19,7 @@ $today-border-color: #007bff;
 .month-year {
   position: absolute;
   bottom: 120px;
-  right: -65px;
+  right: -90px;
   font-size: 2rem;
   line-height: 1;
   font-weight: 300;
@@ -36,7 +36,7 @@ $today-border-color: #007bff;
   display: flex;
   flex-wrap: wrap;
   flex-grow: 1;
-  margin-right: 46px;
+  margin-right: 30px;
 
   .day-label {
     position: relative;

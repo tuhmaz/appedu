@@ -1,8 +1,7 @@
 @extends('layouts.layoutFront')
 
-
 @section('page-style')
-    @vite(['resources/css/calendar.css', 'resources/js/calendar.js'])
+    @vite(['resources/css/calendar.css', 'resources/assets/vendor/js/calendar.js'])
 @endsection
 
 @section('content')
@@ -26,17 +25,20 @@
           <div class="day-label">{{ __('Friday') }}</div>
 
           @php
+          // إعداد التواريخ للشهر الحالي
           $date = new DateTime();
           $daysInMonth = $date->format('t');
           $startDate = clone $date;
           $startDate->modify('first day of this month');
-          $firstDayOfWeek = ($startDate->format('N') + 1) % 7;
+          $firstDayOfWeek = $startDate->format('w');
 
+          // إضافة مربعات فارغة للأيام قبل بداية الشهر الحالي
           for ($i = 0; $i < $firstDayOfWeek; $i++) {
               echo '<div class="day dull"></div>';
           }
 
-           for ($i = 1; $i <= $daysInMonth; $i++) {
+          // إضافة أيام الشهر الحالي
+          for ($i = 1; $i <= $daysInMonth; $i++) {
               $currentDate = new DateTime($date->format('Y-m') . "-$i");
               $hasEvent = false;
 
@@ -55,14 +57,14 @@
                   echo '<div class="day"><div class="content">' . $i . '</div></div>';
               }
           }
-        @endphp
+          @endphp
 
         </div>
       </div>
     </div>
   </div>
 </div>
-  <div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
+<div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -82,8 +84,6 @@
   </div>
 </div>
 
-@endsection
-
 @section('scripts')
- 
+
 @endsection
