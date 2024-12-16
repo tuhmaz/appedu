@@ -15,19 +15,19 @@ class RolesTableSeeder extends Seeder
         DB::table('roles')->insert([
             [
                 'name' => 'Admin',
-                'guard_name' => 'sanctum',
+                'guard_name' => 'web',
                 'created_at' => $timestamp,
                 'updated_at' => $timestamp,
             ],
             [
                 'name' => 'Supervisor',
-                'guard_name' => 'sanctum',
+                'guard_name' => 'web',
                 'created_at' => $timestamp,
                 'updated_at' => $timestamp,
             ],
             [
                 'name' => 'User',
-                'guard_name' => 'sanctum',
+                'guard_name' => 'web',
                 'created_at' => $timestamp,
                 'updated_at' => $timestamp,
             ],

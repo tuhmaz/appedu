@@ -6,7 +6,7 @@ use Detection\MobileDetect;
 $detect = new MobileDetect;
 $colors = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'dark'];
 $colorCount = count($colors);
-
+$siteName = config('settings.site_name');
 $icons = [
 '1' => 'ti ti-number-0',
 '2' => 'ti ti-number-1',
@@ -27,21 +27,32 @@ $icons = [
 
 @extends('layouts/layoutFront')
 
-@section('title')
+@section('title', __('welcome') . ' - ' . $siteName)
 
 @section('page-style')
-@vite([ 'resources/assets/vendor/scss/but.scss','resources/assets/vendor/scss/calendar.scss'])
+@vite([
+  'resources/assets/vendor/scss/_home.scss',
+  'resources/assets/vendor/scss/but.scss',
+  'resources/assets/vendor/scss/calendar.scss'
+])
 @endsection
 
 @section('page-script')
-@vite(['resources/assets/vendor/js/filterhome.js','resources/assets/vendor/js/but.js','resources/assets/vendor/js/calendar.js'])
+@vite([
+  'resources/assets/vendor/js/filterhome.js',
+  'resources/assets/vendor/js/but.js',
+  'resources/assets/vendor/js/calendar.js'
+])
 @endsection
 
 @section('content')
 <section class="section-py first-section-pt help-center-header position-relative overflow-hidden" style="background-color: rgb(32, 44, 69); padding-bottom: 20px;">
   <div class="container mt-12">
     @guest
-    <h1 class="display-4 text-white text-center">{{ __('welcome') }} {{ config('settings.site_name') }}</h1>
+    <h1 class="display-4 text-white text-center" data-lcp>
+      <span class="welcome-text">{{ __('welcome') }}</span>
+      <span class="site-name">{{ $siteName }}</span>
+    </h1>
     <p class="lead text-white text-center">{{ __('explore_classes') }}</p>
     @endguest
   </div>
@@ -56,8 +67,17 @@ $icons = [
       </a>
     </li>
   </ol>
-  <div class="progress mt-2">
-    <div class="progress-bar" role="progressbar" style="width: 25%;"></div>
+  <div class="progress mt-2" role="progressbar" aria-label="{{ __('Page Progress') }}">
+    <div class="progress-bar" 
+         role="progressbar" 
+         style="width: 25%;" 
+         aria-valuenow="25" 
+         aria-valuemin="0" 
+         aria-valuemax="100"
+         aria-label="{{ __('Page Progress') }}"
+    >
+      <span class="visually-hidden">25% {{ __('Complete') }}</span>
+    </div>
   </div>
 </div>
 
@@ -147,43 +167,39 @@ $icons = [
                       }
 
                       while ($currentDate->month == $currentMonth) {
-                      $hasEvent = $events->contains(fn($event) => $event->event_date == $currentDate->format('Y-m-d'));
-                      $eventDetails = $hasEvent ? $events->firstWhere('event_date', $currentDate->format('Y-m-d')) : null;
+                      $hasEvent = $events->contains(function($event) use ($currentDate) {
+                          return $event->event_date->format('Y-m-d') === $currentDate->format('Y-m-d');
+                      });
+                      
+                      $eventDetails = $hasEvent ? $events->first(function($event) use ($currentDate) {
+                          return $event->event_date->format('Y-m-d') === $currentDate->format('Y-m-d');
+                      }) : null;
 
-                      if ($hasEvent) {
-                      echo '<div class="day event" data-title="' . $eventDetails->title . '" data-description="' . $eventDetails->description . '" data-date="' . $eventDetails->event_date . '">
-                        <div class="content">' . $currentDate->day . '</div>
-                      </div>';
+                      if ($hasEvent && $eventDetails) {
+                          echo '<div class="day event" 
+                            data-bs-toggle="modal"
+                            data-bs-target="#eventModal"
+                            data-title="' . $eventDetails->title . '" 
+                            data-description="' . $eventDetails->description . '" 
+                            data-date="' . $eventDetails->event_date->format('Y-m-d') . '"
+                            data-time="' . ($eventDetails->event_time ? $eventDetails->getEventTimeFormatted() : '') . '"
+                            data-location="' . ($eventDetails->location ?? '') . '"
+                            data-status="' . ($eventDetails->status ?? 'upcoming') . '">
+                            <div class="content">' . $currentDate->day . '</div>
+                          </div>';
                       } elseif ($currentDate->isToday()) {
-                      echo '<div class="day today">
-                        <div class="content">' . $currentDate->day . '</div>
-                      </div>';
+                          echo '<div class="day today">
+                            <div class="content">' . $currentDate->day . '</div>
+                          </div>';
                       } else {
-                      echo '<div class="day">
-                        <div class="content">' . $currentDate->day . '</div>
-                      </div>';
+                          echo '<div class="day">
+                            <div class="content">' . $currentDate->day . '</div>
+                          </div>';
                       }
-
+                      
                       $currentDate->addDay();
                       }
                       @endphp
-
-                      <div class="day {{ $currentDate->isToday() ? 'today' : '' }} {{ $hasEvent ? 'has-event' : '' }}"
-                        @if ($hasEvent)
-                        data-bs-toggle="modal"
-                        data-bs-target="#eventModal"
-                        data-title="{{ $eventDetails->title }}"
-                        data-description="{{ $eventDetails->description }}"
-                        data-date="{{ $eventDetails->event_date }}"
-                        @endif>
-                        <div class="content">
-                          {{ $currentDate->day }}
-                        </div>
-                      </div>
-                      @php
-                      $currentDate->addDay();
-                      @endphp
-
                   </div>
                 </div>
               </div>
@@ -199,6 +215,9 @@ $icons = [
                     <h5 id="modalEventTitle"></h5>
                     <p id="modalEventDescription"></p>
                     <p><strong>{{ __('Date') }}:</strong> <span id="modalEventDate"></span></p>
+                    <p><strong>{{ __('Time') }}:</strong> <span id="modalEventTime"></span></p>
+                    <p><strong>{{ __('Location') }}:</strong> <span id="modalEventLocation"></span></p>
+                    <p><strong>{{ __('Status') }}:</strong> <span id="modalEventStatus" class="badge"></span></p>
                   </div>
                 </div>
               </div>

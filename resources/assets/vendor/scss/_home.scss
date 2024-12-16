@@ -1,0 +1,19 @@
+// Optimize main heading rendering
+.help-center-header {
+  background-color: rgb(32, 44, 69);
+  padding-bottom: 20px;
+  will-change: transform;
+  contain: layout style paint;
+  
+  h1 {
+    font-display: swap;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+// Preload critical content
+.first-section-pt {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 500px;
+}

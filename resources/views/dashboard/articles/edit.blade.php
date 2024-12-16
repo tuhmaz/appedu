@@ -17,10 +17,10 @@ use Illuminate\Support\Facades\Storage;
         <div class="card">
             <div class="card-header bg-light d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">
-                    <i class="fas fa-pencil-alt"></i> {{ __('edit_article') }}
+                    <i class="ti ti-edit"></i> {{ __('edit_article') }}
                 </h5>
                 <a href="{{ url()->previous() }}" class="btn btn-outline-primary btn-sm">
-                    <i class="fas fa-arrow-left"></i> رجوع
+                    <i class="ti ti-arrow-left"></i> رجوع
                 </a>
             </div>
             <div class="card-body">
@@ -114,7 +114,7 @@ use Illuminate\Support\Facades\Storage;
 
                     <div class="d-flex justify-content-end">
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> {{ __('update') }}
+                            <i class="ti ti-device-floppy"></i> {{ __('update') }}
                         </button>
                     </div>
                 </form>

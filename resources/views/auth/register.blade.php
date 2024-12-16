@@ -111,19 +111,12 @@ $customizerHidden = 'customizer-hide';
           <div class="divider-text">{{ __('divider_text') }}</div>
         </div>
 
+
         <div class="d-flex justify-content-center">
-          <a href="javascript:;" class="btn btn-sm btn-icon rounded-pill btn-text-facebook me-1_5" title="{{ __('social_facebook') }}">
-            <i class="tf-icons ti ti-brand-facebook-filled"></i>
-          </a>
-          <a href="javascript:;" class="btn btn-sm btn-icon rounded-pill btn-text-twitter me-1_5" title="{{ __('social_twitter') }}">
-            <i class="tf-icons ti ti-brand-twitter-filled"></i>
-          </a>
-          <a href="javascript:;" class="btn btn-sm btn-icon rounded-pill btn-text-github me-1_5" title="{{ __('social_github') }}">
-            <i class="tf-icons ti ti-brand-github-filled"></i>
-          </a>
-          <a href="javascript:;" class="btn btn-sm btn-icon rounded-pill btn-text-google-plus" title="{{ __('social_google') }}">
-            <i class="tf-icons ti ti-brand-google-filled"></i>
-          </a>
+        <a href="{{ route('auth.google') }}" class="btn btn-sm btn-icon rounded-pill btn-text-google-plus" title="{{ __('social_google') }}">
+       <img src="{{ asset('/assets/img/icon/google.webp') }}" alt="{{ __('social_google') }}" class="google-icon" style="width: 80px; height: 80px;"  />
+</a>
+
         </div>
       </div>
     </div>

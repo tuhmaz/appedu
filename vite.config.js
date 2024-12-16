@@ -2,8 +2,11 @@ import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import html from '@rollup/plugin-html';
 import { glob } from 'glob';
-import { terser } from 'rollup-plugin-terser';
+import terser from '@rollup/plugin-terser';
 import { visualizer } from 'rollup-plugin-visualizer';
+import viteCompression from 'vite-plugin-compression';
+import autoprefixer from 'autoprefixer';
+import cssnano from 'cssnano';
 
 /**
  * Get Files from a directory
@@ -23,6 +26,7 @@ const fileQueries = {
   libsScssFiles: 'resources/assets/vendor/libs/**/!(_)*.scss',
   libsCssFiles: 'resources/assets/vendor/libs/**/*.css',
   fontsScssFiles: 'resources/assets/vendor/fonts/!(_)*.scss',
+  customScssFiles: 'resources/assets/vendor/scss/_*.scss',
 };
 
 // Collect all files
@@ -66,34 +70,107 @@ export default defineConfig({
     }),
     html(),
     libsWindowAssignment(),
-    terser(),
-    ...(process.env.NODE_ENV === 'production' ? [visualizer({ open: true })] : []),
+    terser({
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+      format: {
+        comments: false,
+      },
+    }),
+    viteCompression({
+      algorithm: 'gzip',
+      ext: '.gz',
+      threshold: 10240, // Only compress files larger than 10KB
+      deleteOriginFile: false,
+    }),
+    viteCompression({
+      algorithm: 'brotliCompress',
+      ext: '.br',
+      threshold: 10240,
+      deleteOriginFile: false,
+    }),
+    visualizer({
+      filename: 'stats.html',
+      gzipSize: true,
+      brotliSize: true,
+    }),
   ],
-
-  css: {
-    postcss: './postcss.config.cjs',
-  },
-
   build: {
-    // حذف الـ sourcemap الثابت
-    sourcemap: process.env.NODE_ENV !== 'production', // Sourcemaps only for non-production
+    cssMinify: 'cssnano',
     rollupOptions: {
       external: ['summernote'],
-
       output: {
         globals: {
-          onesignal: 'OneSignal',
+          onesignal: 'OneSignal'
         },
+        manualChunks: {
+          vendor: [
+            '@yaireo/tagify',
+            '@popperjs/core',
+          ],
+          utils: [
+            'lodash-es',
+            'moment',
+          ],
+        },
+        chunkFileNames: 'assets/js/[name]-[hash].js',
+        entryFileNames: 'assets/js/[name]-[hash].js',
+        assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
       },
+    },
+    assetsInlineLimit: 4096, // 4KB
+    sourcemap: false,
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
+    chunkSizeWarningLimit: 600,
+    cssCodeSplit: true,
+    emptyOutDir: true,
+    modulePreload: {
+      polyfill: true
+    }
+  },
+  css: {
+    postcss: {
       plugins: [
-        terser({
-          format: {
-            comments: false, // Remove comments in production
-          },
+        autoprefixer,
+        cssnano({
+          preset: ['default', {
+            discardComments: {
+              removeAll: true,
+            },
+            minifyFontValues: {
+              removeQuotes: false,
+            },
+          }],
         }),
       ],
     },
-    minify: 'terser',
-    chunkSizeWarningLimit: 600, // Increase limit to avoid warnings for larger chunks
+    preprocessorOptions: {
+      scss: {
+        quietDeps: true,
+      },
+    },
+    devSourcemap: false,
   },
+  resolve: {
+    alias: {
+      '@': '/resources',
+      '~': '/resources/assets',
+    },
+  },
+  server: {
+    hmr: {
+      overlay: false
+    },
+    watch: {
+      usePolling: true
+    }
+  }
 });

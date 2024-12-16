@@ -69,23 +69,26 @@ class GradeOneController extends Controller
 
   public function subjectArticles(Request $request, $database, Subject $subject, Semester $semester, $category)
 {
-    $database = $this->getConnection($request);
+  $database = $this->getConnection($request);
 
-    $articles = Article::on($database)
-        ->where('subject_id', $subject->id)
-        ->where('semester_id', $semester->id)
-        ->whereHas('files', function ($query) use ($category) {
-            $query->where('file_category', $category);
-        })
-        ->with(['files' => function ($query) use ($category) {
-            $query->where('file_category', $category);
-        }])
-        ->orderBy('created_at', 'desc')
-        ->paginate(10);
+  $articles = Article::on($database)
+      ->where('subject_id', $subject->id)
+      ->where('semester_id', $semester->id)
+      ->whereHas('files', function ($query) use ($category) {
+          $query->where('file_category', $category);
+      })
+      ->with(['files' => function ($query) use ($category) {
+          $query->where('file_category', $category);
+      }])
+      ->orderBy('created_at', 'desc')
+      ->paginate(10);
 
-    $grade_level = $subject->schoolClass->grade_name;
+  // التأكد من تحميل grade_name من القاعدة الفرعية
+  $subject->setConnection($database); // تغيير اتصال الـ subject إلى القاعدة الفرعية
+  $grade_level = $subject->schoolClass->grade_name;
 
-    return view('frontend.articles.index', compact('articles', 'subject', 'semester', 'category', 'grade_level', 'database'));
+  return view('frontend.articles.index', compact('articles', 'subject', 'semester', 'category', 'grade_level', 'database'));
+
 }
 
 

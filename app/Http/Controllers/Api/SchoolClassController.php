@@ -4,104 +4,142 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\SchoolClass;
-use App\Models\Subject;
+use App\Traits\Cacheable;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class SchoolClassController extends Controller
 {
+    use Cacheable;
+
     private function getConnection(string $country): string
     {
         return match ($country) {
-            'saudi' => 'sa',
-            'egypt' => 'eg',
-            'palestine' => 'ps',
-            default => 'jo',
+            'jordan' => 'jordan',
+            'palestine' => 'palestine',
+            default => 'jordan'
         };
     }
 
+    /**
+     * عرض قائمة الصفوف الدراسية
+     * كاش لمدة 24 ساعة لأنها بيانات ثابتة نسبياً
+     */
     public function index(Request $request)
     {
         $country = $request->input('country', 'jordan');
         $connection = $this->getConnection($country);
-        $schoolClasses = DB::connection($connection)->table('school_classes')->get();
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Classes fetched successfully',
-            'data' => $schoolClasses
-        ]);
+        
+        $key = $this->createCacheKey('classes.all', $country);
+        
+        return $this->cache()->remember($key, function () use ($connection) {
+            return SchoolClass::on($connection)
+                ->orderBy('grade_level')
+                ->get()
+                ->groupBy('grade_name');
+        }, $this->getCacheDuration('static'));
     }
 
-
-    public function store(Request $request)
-    {
-        $request->validate([
-            'grade_name' => 'required|string|max:255',
-            'grade_level' => 'required|integer',
-            'country' => 'required|string',
-        ]);
-
-        $connection = $this->getConnection($request->input('country'));
-
-        DB::connection($connection)->table('school_classes')->insert([
-            'grade_name' => $request->input('grade_name'),
-            'grade_level' => $request->input('grade_level'),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        return response()->json(['message' => 'Class added successfully in ' . $request->input('country') . ' database.'], 201);
-    }
-
+    /**
+     * عرض صف دراسي محدد
+     * كاش لمدة 12 ساعة
+     */
     public function show(Request $request, $id)
     {
         $country = $request->input('country', 'jordan');
         $connection = $this->getConnection($country);
-
-        $schoolClass = DB::connection($connection)->table('school_classes')->where('id', $id)->first();
-
-        if (!$schoolClass) {
-            return response()->json(['message' => 'Class not found'], 404);
-        }
-
-        return response()->json($schoolClass);
+        
+        $key = $this->createCacheKey('class', $id, $country);
+        
+        return $this->cache()->remember($key, function () use ($connection, $id) {
+            return SchoolClass::on($connection)
+                ->with(['subjects'])
+                ->findOrFail($id);
+        }, $this->getCacheDuration('static'));
     }
 
+    /**
+     * إنشاء صف دراسي جديد
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'grade_name' => 'required|string',
+            'grade_level' => 'required|integer',
+            'description' => 'nullable|string'
+        ]);
+
+        $country = $request->input('country', 'jordan');
+        $connection = $this->getConnection($country);
+
+        $class = SchoolClass::on($connection)->create([
+            'grade_name' => $request->grade_name,
+            'grade_level' => $request->grade_level,
+            'description' => $request->description
+        ]);
+
+        // حذف الكاش ذو الصلة
+        $this->clearRelatedCache([
+            $this->createCacheKey('classes.all', $country)
+        ]);
+
+        return response()->json([
+            'message' => 'School class created successfully',
+            'class' => $class
+        ], 201);
+    }
+
+    /**
+     * تحديث صف دراسي
+     */
     public function update(Request $request, $id)
     {
         $request->validate([
-            'grade_name' => 'required|string|max:255',
+            'grade_name' => 'required|string',
             'grade_level' => 'required|integer',
-            'country' => 'required|string',
+            'description' => 'nullable|string'
         ]);
 
-        $connection = $this->getConnection($request->input('country'));
+        $country = $request->input('country', 'jordan');
+        $connection = $this->getConnection($country);
 
-        $updated = DB::connection($connection)->table('school_classes')->where('id', $id)->update([
-            'grade_name' => $request->input('grade_name'),
-            'grade_level' => $request->input('grade_level'),
-            'updated_at' => now(),
+        $class = SchoolClass::on($connection)->findOrFail($id);
+        $class->update([
+            'grade_name' => $request->grade_name,
+            'grade_level' => $request->grade_level,
+            'description' => $request->description
         ]);
 
-        if ($updated) {
-            return response()->json(['message' => 'Class updated successfully.']);
-        }
+        // حذف الكاش ذو الصلة
+        $this->clearRelatedCache([
+            $this->createCacheKey('classes.all', $country),
+            $this->createCacheKey('class', $id, $country)
+        ]);
 
-        return response()->json(['message' => 'Class not found'], 404);
+        return response()->json([
+            'message' => 'School class updated successfully',
+            'class' => $class
+        ]);
     }
 
+    /**
+     * حذف صف دراسي
+     */
     public function destroy(Request $request, $id)
     {
         $country = $request->input('country', 'jordan');
         $connection = $this->getConnection($country);
 
-        $deleted = DB::connection($connection)->table('school_classes')->where('id', $id)->delete();
+        $class = SchoolClass::on($connection)->findOrFail($id);
+        $class->delete();
 
-        if ($deleted) {
-            return response()->json(['message' => 'Class deleted successfully.']);
-        }
+        // حذف الكاش ذو الصلة
+        $this->clearRelatedCache([
+            $this->createCacheKey('classes.all', $country),
+            $this->createCacheKey('class', $id, $country)
+        ]);
 
-        return response()->json(['message' => 'Class not found'], 404);
+        return response()->json([
+            'message' => 'School class deleted successfully'
+        ]);
     }
 }

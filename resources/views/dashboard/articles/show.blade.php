@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Storage;
                         <h4 class="card-title mb-0">{{ $article->title }}</h4>
                         <!-- زر الرجوع -->
                         <a href="{{ url()->previous() }}" class="btn btn-outline-primary">
-                            <i class="fas fa-arrow-left"></i> رجوع
+                            <i class="ti ti-arrow-left"></i> رجوع
                         </a>
                     </div>
                     <div class="card-body">
@@ -51,10 +51,10 @@ use Illuminate\Support\Facades\Storage;
                             @forelse ($article->files as $file)
                                 <div class="mb-2 d-flex align-items-center">
                                     <a href="{{ Storage::url($file->file_path) }}" target="_blank" class="btn btn-success btn-sm me-2">
-                                        <i class="fas fa-eye"></i> {{ __('view') }}
+                                        <i class="ti ti-eye"></i> {{ __('view') }}
                                     </a>
                                     <a href="{{ Storage::url($file->file_path) }}" download class="btn btn-secondary btn-sm">
-                                        <i class="fas fa-download"></i> {{ __('download') }}
+                                        <i class="ti ti-download"></i> {{ __('download') }}
                                     </a>
                                 </div>
                             @empty
@@ -64,13 +64,13 @@ use Illuminate\Support\Facades\Storage;
 
                         <div class="d-flex justify-content-between mt-4">
                             <a href="{{ route('articles.edit', $article->id) }}" class="btn btn-warning flex-fill me-2">
-                                <i class="fas fa-edit"></i> {{ __('edit') }}
+                                <i class="ti ti-edit"></i> {{ __('edit') }}
                             </a>
                             <form action="{{ route('articles.destroy', $article->id) }}" method="POST" class="d-inline flex-fill ms-2">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-danger w-100" onclick="return confirm('هل أنت متأكد من الحذف؟');">
-                                    <i class="fas fa-trash-alt"></i> {{ __('delete') }}
+                                    <i class="ti ti-trash"></i> {{ __('delete') }}
                                 </button>
                             </form>
                         </div>

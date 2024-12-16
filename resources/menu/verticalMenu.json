@@ -13,9 +13,36 @@
       "slug": "dashboard"
     },
     {
+      "name": "Analytics & Reports",
+      "icon": "menu-icon tf-icons ti ti-chart-bar",
+      "slug": "analytics-reports",
+      "permission": "manage settings",
+      "submenu": [
+        {
+          "url": "dashboard/analytics",
+          "name": "Analytics",
+          "icon": "menu-icon tf-icons ti ti-chart-line",
+          "slug": "analytics-dashboard"
+        },
+        {
+          "url": "dashboard/performance",
+          "name": "Performance",
+          "icon": "menu-icon tf-icons ti ti-gauge",
+          "slug": "performance-metrics"
+        },
+        {
+          "url": "dashboard/login-attempts",
+          "name": "Login Attempts",
+          "icon": "menu-icon tf-icons ti ti-history",
+          "slug": "app-login-attempts"
+        }
+      ]
+    },
+    {
       "name": "Users",
       "icon": "menu-icon tf-icons ti ti-users",
       "slug": "app-users",
+
       "submenu": [
         {
           "url": "dashboard/users",
@@ -23,9 +50,11 @@
           "slug": "app-users-all"
         },
         {
+
           "url": "dashboard/users/create",
           "name": "Add New User",
-          "slug": "app-users-create"
+          "slug": "app-users-create",
+          "permission": "manage users"
         }
       ]
     },
@@ -38,14 +67,12 @@
         {
           "url": "dashboard/roles",
           "name": "Roles",
-          "slug": "app-access-roles",
-          "permission": "manage permissions"
+          "slug": "app-access-roles"
         },
         {
           "url": "dashboard/permissions",
-          "name": "Permission",
-          "slug": "app-access-permission",
-          "permission": "manage permissions"
+          "name": "Permissions",
+          "slug": "app-access-permission"
         }
       ]
     },
@@ -125,6 +152,7 @@
       "name": "Files",
       "icon": "menu-icon tf-icons ti ti-file",
       "slug": "app-files",
+      "permission": "manage files",
       "submenu": [
         {
           "url": "dashboard/files",
@@ -142,17 +170,35 @@
       "name": "Categories",
       "icon": "menu-icon tf-icons ti ti-tags",
       "slug": "app-categories",
-      "permission": "manage Categories",
+      "permission": "manage categories",
       "submenu": [
         {
           "url": "dashboard/categories",
-          "name": "All categories",
+          "name": "All Categories",
           "slug": "app-categories-all"
         },
         {
           "url": "dashboard/categories/create",
-          "name": "Add New categories",
+          "name": "Add New Category",
           "slug": "app-categories-create"
+        }
+      ]
+    },
+    {
+      "name": "Keywords",
+      "icon": "menu-icon tf-icons ti ti-tag",
+      "slug": "app-keywords",
+      "permission": "manage keywords",
+      "submenu": [
+        {
+          "url": "dashboard/keywords",
+          "name": "All Keywords",
+          "slug": "app-keywords-all"
+        },
+        {
+          "url": "dashboard/keywords/create",
+          "name": "Add New Keyword",
+          "slug": "app-keywords-create"
         }
       ]
     },
@@ -178,6 +224,7 @@
       "name": "Messages",
       "icon": "menu-icon tf-icons ti ti-message",
       "slug": "app-messages",
+
       "submenu": [
         {
           "url": "dashboard/messages",

@@ -22,7 +22,8 @@ $currentRouteName = Route::currentRouteName();
       <ul class="navbar-nav flex-row align-items-center ms-auto">
         <li class="navbar-nav flex-row align-items-center ms-auto me-3">
           <form method="POST" action="{{ route('setDatabase') }}" id="databaseForm">
-            @csrf
+            {{ csrf_field() }}
+            <input type="hidden" name="_token" value="{{ csrf_token() }}">
             <input type="hidden" name="database" id="databaseInput" value="{{ session('database', 'jo') }}">
             <div class="dropdown">
               <button type="button" class="btn btn-outline-warning btn-icon rounded-pill dropdown-toggle hide-arrow" data-bs-toggle="dropdown" aria-expanded="false">

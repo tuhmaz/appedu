@@ -40,80 +40,102 @@ class HomeController extends Controller
    */
   public function index(Request $request)
   {
-      // الحصول على اتصال قاعدة البيانات الديناميكي
       $database = $this->getDatabaseConnection();
-
-      // Cache الأخبار من قاعدة البيانات المتصلة
-      $news = Cache::remember("news_{$database}", 60, function () use ($database) {
-          return News::on($database)->with('category')->get();
+      
+      // Increase cache duration and eager load relationships
+      $news = Cache::remember("news_{$database}", 3600, function () use ($database) {
+          return News::on($database)
+              ->with(['category', 'author'])
+              ->latest()
+              ->take(10)
+              ->get();
       });
 
-      // Cache الصفوف الدراسية من قاعدة البيانات المتصلة
-      $classes = Cache::remember("classes_{$database}", 60, function () use ($database) {
+      // Cache classes with longer duration
+      $classes = Cache::remember("classes_{$database}", 3600, function () use ($database) {
           return SchoolClass::on($database)->get();
       });
 
-      // جلب الملفات من قاعدة البيانات المتصلة
-      $query = File::on($database);
+      // Cache categories
+      $categories = Cache::remember("categories_{$database}", 3600, function () use ($database) {
+          return Category::on($database)->get();
+      });
 
-      // تطبيق الفلاتر بناءً على المدخلات من المستخدم للصف، المادة، الفصل الدراسي وفئة الملف
-      if ($request->class_id) {
+      // Optimize file query with eager loading and pagination
+      $query = File::on($database)->with(['article.semester.subject.schoolClass']);
+
+      if ($request->filled('class_id')) {
           $query->whereHas('article.semester.subject.schoolClass', function ($q) use ($request) {
               $q->where('id', $request->class_id);
           });
       }
 
-      if ($request->subject_id) {
+      if ($request->filled('subject_id')) {
           $query->whereHas('article.semester.subject', function ($q) use ($request) {
               $q->where('id', $request->subject_id);
           });
       }
 
-      if ($request->semester_id) {
+      if ($request->filled('semester_id')) {
           $query->whereHas('article.semester', function ($q) use ($request) {
               $q->where('id', $request->semester_id);
           });
       }
 
-      if ($request->file_category) {
+      if ($request->filled('file_category')) {
           $query->where('file_category', $request->file_category);
       }
 
-      // جلب الملفات بناءً على الاستعلام
-      $files = $query->get();
+      // Paginate files instead of getting all
+      $files = $query->latest()->paginate(20);
 
-      // جلب الفئات من قاعدة البيانات
-      $categories = Category::on($database)->get();
+      // Cache calendar data
+      $calendarKey = "calendar_{$database}_{$request->input('month', date('m'))}_{$request->input('year', date('Y'))}";
+      $calendarData = Cache::remember($calendarKey, 3600, function () use ($request) {
+          $month = $request->input('month', date('m'));
+          $year = $request->input('year', date('Y'));
+          $date = Carbon::createFromDate($year, $month, 1);
+          
+          return [
+              'date' => $date,
+              'days' => $this->generateCalendarDays($date),
+          ];
+      });
 
-      // إعداد البيانات الخاصة بالتقويم
-      $month = $request->input('month', date('m'));
-      $year = $request->input('year', date('Y'));
+      // جلب الأحداث مع الكاش
+      $events = Cache::remember("events", 3600, function () {
+          return Event::on('jo')  // استخدام قاعدة البيانات الرئيسية فقط
+              ->whereDate('event_date', '>=', now()->startOfMonth())
+              ->whereDate('event_date', '<=', now()->endOfMonth())
+              ->orderBy('event_date')
+              ->get();
+      });
 
-      $date = Carbon::createFromDate($year, $month, 1);
+      return view('content.pages.home', compact(
+          'news',
+          'classes',
+          'categories',
+          'files',
+          'calendarData',
+          'events'
+      ));
+  }
 
+  private function generateCalendarDays($date)
+  {
       $startOfCalendar = $date->copy()->startOfMonth()->startOfWeek(Carbon::FRIDAY);
       $endOfCalendar = $date->copy()->endOfMonth()->endOfWeek(Carbon::FRIDAY);
-
+      
       $days = collect();
       $currentDate = $startOfCalendar->copy();
+      
       while ($currentDate <= $endOfCalendar) {
           $days->push($currentDate->copy());
           $currentDate->addDay();
       }
-
-      // جلب الأحداث بناءً على الشهر والسنة
-      $events = Event::whereMonth('event_date', $month)->whereYear('event_date', $year)->get();
-
-      // تمرير البيانات إلى العرض
-      if (Auth::check()) {
-          $user = Auth::user();
-          return view('content.pages.home', compact('user', 'news', 'classes', 'categories', 'files', 'days', 'date', 'events'));
-      } else {
-          return view('content.pages.home', compact('news', 'classes', 'categories', 'files', 'days', 'date', 'events'));
-      }
+      
+      return $days;
   }
-
-
 
   public function about()
   {
@@ -124,8 +146,4 @@ class HomeController extends Controller
   {
     return view('contact');
   }
-
-
-
-
 }

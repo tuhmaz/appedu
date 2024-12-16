@@ -7,13 +7,13 @@ $contentLayout = (isset($container) ? (($container === 'container-xxl') ? "layou
 @endphp
 
 <html lang="{{ session()->get('locale') ?? app()->getLocale() }}" class="{{ $configData['style'] }}-style {{($contentLayout ?? '')}} {{ ($navbarType ?? '') }} {{ ($menuFixed ?? '') }} {{ $menuCollapsed ?? '' }} {{ $menuFlipped ?? '' }} {{ $menuOffcanvas ?? '' }} {{ $footerFixed ?? '' }} {{ $customizerHidden ?? '' }}" dir="{{ $configData['textDirection'] }}" data-theme="{{ $configData['theme'] }}" data-assets-path="{{ asset('/assets') . '/' }}" data-base-url="{{url('/')}}" data-framework="laravel" data-template="{{ $configData['layout'] . '-menu-' . $configData['themeOpt'] . '-' . $configData['styleOpt'] }}" data-style="{{$configData['styleOptVal']}}">
-<title>@yield('title') |
+<head>
+  <title>@yield('title') |
     {{ config('settings.site_name') ? config('settings.site_name') : 'site_name' }} -
     {{ config('settings.meta_title') ? config('settings.meta_title') : 'meta_title' }}
   </title>
-<head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0">
   <meta http-equiv="Cache-Control" content="public, max-age=31536000">
 
   @hasSection('meta')
@@ -29,18 +29,30 @@ $contentLayout = (isset($container) ? (($container === 'container-xxl') ? "layou
   <meta name="facebook_pixel" content="{{ config('settings.facebook_pixel_id') ? config('settings.facebook_pixel_id') : ''  }}">
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <link rel="icon" type="image/x-icon" href="{{ asset('storage/' . config('settings.site_favicon')) }}" />
+  @stack('styles')
   @include('cookie-consent::index')
   @include('layouts/sections/styles' . $isFront)
 
   @include('layouts/sections/scriptsIncludes' . $isFront)
 
- 
+
 </head>
 
 <body>
 
 
   @yield('layoutContent')
+
+
+
+  {{-- remove while creating package --}}
+  {{-- remove while creating package end --}}
+  @include('layouts/sections/scripts' . $isFront)
+
+</body>
+
+
+</html>
 
 
 

@@ -1,5 +1,9 @@
 @extends('layouts/layoutMaster')
 
+@php
+use Illuminate\Support\Str;
+@endphp
+
 @section('page-style')
     @vite(['resources/assets/vendor/scss/calendar.scss', 'resources/assets/vendor/js/calendar.js'])
 @endsection
@@ -10,10 +14,10 @@
         {{-- Header --}}
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">
-                <i class="ri-calendar-line me-2"></i> {{ __('Calendar') }}
+                <i class="ti ti-calendar me-2"></i> {{ __('Calendar') }}
             </h5>
             <a href="#addEventModal" class="btn btn-success" data-bs-toggle="modal">
-                <i class="ri-add-line me-1"></i> {{ __('Add New Event') }}
+                <i class="ti ti-plus me-1"></i> {{ __('Add New Event') }}
             </a>
         </div>
 
@@ -89,6 +93,25 @@
                             <input type="date" name="event_date" class="form-control" required>
                         </div>
 
+                        <div class="form-group mb-3">
+                            <label for="event_time">{{ __('Event Time') }}</label>
+                            <input type="time" name="event_time" class="form-control">
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="location">{{ __('Location') }}</label>
+                            <input type="text" name="location" class="form-control">
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="status">{{ __('Status') }}</label>
+                            <select name="status" class="form-control">
+                                <option value="upcoming">{{ __('Upcoming') }}</option>
+                                <option value="ongoing">{{ __('Ongoing') }}</option>
+                                <option value="completed">{{ __('Completed') }}</option>
+                            </select>
+                        </div>
+
                         <button type="submit" class="btn btn-primary">{{ __('Add Event') }}</button>
                     </form>
                 </div>
@@ -105,6 +128,9 @@
                             <th>{{ __('Title') }}</th>
                             <th>{{ __('Description') }}</th>
                             <th>{{ __('Date') }}</th>
+                            <th>{{ __('Time') }}</th>
+                            <th>{{ __('Location') }}</th>
+                            <th>{{ __('Status') }}</th>
                             <th>{{ __('Actions') }}</th>
                         </tr>
                     </thead>
@@ -112,43 +138,74 @@
                         @foreach ($events as $event)
                         <tr>
                             <td>{{ $event->title }}</td>
-                            <td>{{ $event->description }}</td>
-                            <td>{{ $event->event_date }}</td>
+                            <td>{{ Str::limit($event->description, 50) }}</td>
+                            <td>{{ $event->event_date->format('Y-m-d') }}</td>
+                            <td>{{ $event->event_time ? $event->event_time->format('H:i') : '-' }}</td>
+                            <td>{{ $event->location ?? '-' }}</td>
                             <td>
-                                <a href="#editEventModal{{ $event->id }}" class="btn btn-sm btn-warning" data-bs-toggle="modal">{{ __('Edit') }}</a>
+                                <span class="badge bg-{{ $event->status === 'upcoming' ? 'primary' : ($event->status === 'ongoing' ? 'success' : 'secondary') }}">
+                                    {{ __($event->status) }}
+                                </span>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editEventModal{{ $event->id }}">
+                                    <i class="ti ti-edit"></i>
+                                </button>
                                 <form action="{{ route('events.destroy', $event->id) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('{{ __('Are you sure?') }}')">{{ __('Delete') }}</button>
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('{{ __('Are you sure?') }}')">
+                                        <i class="ti ti-trash"></i>
+                                    </button>
                                 </form>
                             </td>
                         </tr>
 
-                        {{-- Edit Event Modal --}}
-                        <div class="modal fade" id="editEventModal{{ $event->id }}" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true">
+                        {{-- Modal تحرير الحدث --}}
+                        <div class="modal fade" id="editEventModal{{ $event->id }}" tabindex="-1" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="editEventModalLabel">{{ __('Edit Event') }}</h5>
+                                        <h5 class="modal-title">{{ __('Edit Event') }}</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
                                         <form action="{{ route('events.update', $event->id) }}" method="POST">
                                             @csrf
                                             @method('PUT')
+                                            
                                             <div class="form-group mb-3">
-                                                <label for="title">{{ __('Event Title') }}</label>
+                                                <label>{{ __('Title') }}</label>
                                                 <input type="text" name="title" class="form-control" value="{{ $event->title }}" required>
                                             </div>
 
                                             <div class="form-group mb-3">
-                                                <label for="description">{{ __('Description') }}</label>
+                                                <label>{{ __('Description') }}</label>
                                                 <textarea name="description" class="form-control">{{ $event->description }}</textarea>
                                             </div>
 
                                             <div class="form-group mb-3">
-                                                <label for="event_date">{{ __('Event Date') }}</label>
-                                                <input type="date" name="event_date" class="form-control" value="{{ $event->event_date }}" required>
+                                                <label>{{ __('Date') }}</label>
+                                                <input type="date" name="event_date" class="form-control" value="{{ $event->event_date->format('Y-m-d') }}" required>
+                                            </div>
+
+                                            <div class="form-group mb-3">
+                                                <label>{{ __('Time') }}</label>
+                                                <input type="time" name="event_time" class="form-control" value="{{ $event->event_time ? $event->event_time->format('H:i') : '' }}">
+                                            </div>
+
+                                            <div class="form-group mb-3">
+                                                <label>{{ __('Location') }}</label>
+                                                <input type="text" name="location" class="form-control" value="{{ $event->location }}">
+                                            </div>
+
+                                            <div class="form-group mb-3">
+                                                <label>{{ __('Status') }}</label>
+                                                <select name="status" class="form-control">
+                                                    <option value="upcoming" {{ $event->status === 'upcoming' ? 'selected' : '' }}>{{ __('Upcoming') }}</option>
+                                                    <option value="ongoing" {{ $event->status === 'ongoing' ? 'selected' : '' }}>{{ __('Ongoing') }}</option>
+                                                    <option value="completed" {{ $event->status === 'completed' ? 'selected' : '' }}>{{ __('Completed') }}</option>
+                                                </select>
                                             </div>
 
                                             <button type="submit" class="btn btn-primary">{{ __('Save Changes') }}</button>
@@ -165,7 +222,7 @@
     </div>
 </div>
 
-{{-- Add Event Modal --}}
+{{-- Modal إضافة حدث جديد --}}
 <div class="modal fade" id="addEventModal" tabindex="-1" aria-labelledby="addEventModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -177,18 +234,37 @@
                 <form action="{{ route('events.store') }}" method="POST">
                     @csrf
                     <div class="form-group mb-3">
-                        <label for="title">{{ __('Event Title') }}</label>
+                        <label>{{ __('Title') }}</label>
                         <input type="text" name="title" class="form-control" required>
                     </div>
 
                     <div class="form-group mb-3">
-                        <label for="description">{{ __('Description') }}</label>
+                        <label>{{ __('Description') }}</label>
                         <textarea name="description" class="form-control"></textarea>
                     </div>
 
                     <div class="form-group mb-3">
-                        <label for="event_date">{{ __('Event Date') }}</label>
+                        <label>{{ __('Date') }}</label>
                         <input type="date" name="event_date" class="form-control" required>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label>{{ __('Time') }}</label>
+                        <input type="time" name="event_time" class="form-control">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label>{{ __('Location') }}</label>
+                        <input type="text" name="location" class="form-control">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label>{{ __('Status') }}</label>
+                        <select name="status" class="form-control">
+                            <option value="upcoming">{{ __('Upcoming') }}</option>
+                            <option value="ongoing">{{ __('Ongoing') }}</option>
+                            <option value="completed">{{ __('Completed') }}</option>
+                        </select>
                     </div>
 
                     <button type="submit" class="btn btn-primary">{{ __('Add Event') }}</button>
@@ -197,5 +273,4 @@
         </div>
     </div>
 </div>
-
 @endsection

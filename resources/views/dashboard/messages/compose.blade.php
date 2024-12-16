@@ -22,8 +22,8 @@
                 <textarea id="email-compose-editor" name="message" class="textarea_editor form-control bg-transparent" rows="15" placeholder="Enter text ..."></textarea>
             </div>
             <div class="text-start mt-4 mb-2">
-                <button class="btn btn-primary btn-sl-sm me-2" type="submit"><span class="me-2"><i class="fa fa-paper-plane"></i></span>Send</button>
-                <button class="btn btn-danger light btn-sl-sm" type="reset"><span class="me-2"><i class="fa fa-times" aria-hidden="true"></i></span>Discard</button>
+                <button class="btn btn-primary btn-sl-sm me-2" type="submit"><span class="me-2"><i class="ti ti-send"></i></span>Send</button>
+                <button class="btn btn-danger light btn-sl-sm" type="reset"><span class="me-2"><i class="ti ti-x" aria-hidden="true"></i></span>Discard</button>
             </div>
         </form>
     </div>

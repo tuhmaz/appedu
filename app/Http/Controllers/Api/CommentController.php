@@ -17,8 +17,17 @@ class CommentController extends Controller
         ]);
 
         try {
-            // استخدام الاتصال الافتراضي المعرّف في .env (مثل 'jo')
-            $comment = Comment::on('jo')->create([
+            // تحديد قاعدة البيانات من الطلب
+            $country = $request->input('country', 'jordan');
+            $connectionName = match ($country) {
+                'jordan' => 'jo',
+                'saudi' => 'sa',
+                'palestine' => 'ps',
+                default => 'jo'
+            };
+
+            // استخدام الاتصال المحدد
+            $comment = Comment::on($connectionName)->create([
                 'body' => $validated['body'],
                 'user_id' => auth()->id(), // المستخدم من قاعدة البيانات الرئيسية
                 'commentable_id' => $validated['commentable_id'],
@@ -26,12 +35,12 @@ class CommentController extends Controller
             ]);
 
             return response()->json([
-                'message' => 'Comment added successfully!',
+                'message' => 'تم إضافة التعليق بنجاح!',
                 'comment' => $comment,
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Failed to add comment.',
+                'message' => 'فشل في إضافة التعليق.',
                 'error' => $e->getMessage(),
             ], 500);
         }

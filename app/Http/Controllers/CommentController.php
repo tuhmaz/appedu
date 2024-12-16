@@ -8,25 +8,43 @@ use App\Models\Article;
 use Illuminate\Http\Request;
 
 class CommentController extends Controller
-
-
 {
-  public function store(Request $request)
-  {
-    $request->validate([
-      'body' => 'required',
-      'commentable_id' => 'required',
-      'commentable_type' => 'required',
-    ]);
+    public function store(Request $request)
+    {
+        $request->validate([
+            'body' => 'required',
+            'commentable_id' => 'required',
+            'commentable_type' => 'required',
+        ]);
 
-    // استخدام الاتصال الافتراضي المعرّف في .env (مثل 'jo')
-    Comment::on('jo')->create([
-      'body' => $request->body,
-      'user_id' => auth()->id(), // المستخدم من قاعدة البيانات الرئيسية
-      'commentable_id' => $request->commentable_id,
-      'commentable_type' => $request->commentable_type,
-    ]);
+        // الحصول على اسم الاتصال الحالي من الجلسة
+        $connection = session('database', 'jo');
 
-    return redirect()->back()->with('success', 'Comment added successfully!');
-  }
+        // إنشاء التعليق في قاعدة البيانات الرئيسية مع تحديد connection_name
+        Comment::create([
+            'body' => $request->body,
+            'user_id' => auth()->id(),
+            'commentable_id' => $request->commentable_id,
+            'commentable_type' => $request->commentable_type,
+            'connection_name' => $connection,
+        ]);
+
+        return redirect()->back()->with('success', 'تم إضافة التعليق بنجاح!');
+    }
+
+    public function index($commentable_type, $commentable_id)
+    {
+        // الحصول على اسم الاتصال الحالي
+        $connection = session('database', 'jo');
+
+        // جلب التعليقات من قاعدة البيانات الرئيسية مع تصفية حسب connection_name
+        $comments = Comment::with('user')
+            ->where('commentable_type', $commentable_type)
+            ->where('commentable_id', $commentable_id)
+            ->where('connection_name', $connection)
+            ->latest()
+            ->get();
+
+        return response()->json($comments);
+    }
 }

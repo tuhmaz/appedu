@@ -34,7 +34,7 @@ return [
 
   'lifetime' => env('SESSION_LIFETIME', 120),
 
-  'expire_on_close' => env('SESSION_EXPIRE_ON_CLOSE', false),
+  'expire_on_close' => false,
 
   /*
   |--------------------------------------------------------------------------
@@ -47,7 +47,7 @@ return [
   |
   */
 
-  'encrypt' => env('SESSION_ENCRYPT', false),
+  'encrypt' => true,
 
   /*
   |--------------------------------------------------------------------------
@@ -73,7 +73,7 @@ return [
   |
   */
 
-  'connection' => env('SESSION_CONNECTION'),
+  'connection' => env('SESSION_CONNECTION', null),
 
   /*
   |--------------------------------------------------------------------------
@@ -86,7 +86,7 @@ return [
   |
   */
 
-  'table' => env('SESSION_TABLE', 'sessions'),
+  'table' => 'sessions',
 
   /*
   |--------------------------------------------------------------------------
@@ -101,7 +101,7 @@ return [
   |
   */
 
-  'store' => env('SESSION_STORE'),
+  'store' => env('SESSION_STORE', null),
 
   /*
   |--------------------------------------------------------------------------
@@ -144,7 +144,7 @@ return [
   |
   */
 
-  'path' => env('SESSION_PATH', '/'),
+  'path' => '/',
 
   /*
   |--------------------------------------------------------------------------
@@ -157,7 +157,7 @@ return [
   |
   */
 
-  'domain' => env('SESSION_DOMAIN'),
+  'domain' => env('SESSION_DOMAIN', null),
 
   /*
   |--------------------------------------------------------------------------
@@ -170,7 +170,7 @@ return [
   |
   */
 
-  'secure' => env('SESSION_SECURE_COOKIE'),
+  'secure' => env('SESSION_SECURE_COOKIE', true),
 
   /*
   |--------------------------------------------------------------------------
@@ -183,7 +183,7 @@ return [
   |
   */
 
-  'http_only' => env('SESSION_HTTP_ONLY', true),
+  'http_only' => true,
 
   /*
   |--------------------------------------------------------------------------
@@ -200,19 +200,19 @@ return [
   |
   */
 
-  'same_site' => env('SESSION_SAME_SITE', 'lax'),
+  'same_site' => 'lax',
 
   /*
   |--------------------------------------------------------------------------
-  | Partitioned Cookies
+  | Session Partitioning
   |--------------------------------------------------------------------------
   |
-  | Setting this value to true will tie the cookie to the top-level site for
-  | a cross-site context. Partitioned cookies are accepted by the browser
-  | when flagged "secure" and the Same-Site attribute is set to "none".
+  | If you are using a load balancer or caching layer, you may want to
+  | partition your session data across multiple servers. This will
+  | prevent a single server from being responsible for all session data.
   |
   */
 
-  'partitioned' => env('SESSION_PARTITIONED_COOKIE', false),
+  'partitioned' => false,
 
 ];
