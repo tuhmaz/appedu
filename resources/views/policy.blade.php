@@ -3,30 +3,44 @@ $configData = Helper::appClasses();
 $customizerHidden = 'customizer-hide';
 @endphp
 
-@extends('layouts/blankLayout')
+@extends('layouts/layoutFront')
 
-@section('title', 'Privacy Policy')
-
-@section('page-style')
-{{-- Page Css files --}}
-@vite('resources/assets/vendor/scss/pages/page-auth.scss')
-@endsection
+@section('title', 'سياسة الخصوصية')
 
 @section('content')
-<div class="authentication-wrapper authentication-basic px-6">
-  <div class="authentication-inner py-6">
-    <div class="card">
-      <div class="card-body">
-        <!-- Logo -->
-        <div class="app-brand justify-content-center mb-6">
-          <a href="{{url('/')}}" class="app-brand-link">
-            <span class="app-brand-logo edu"><img src="{{ asset('storage/' . config('settings.site_logo')) }}" alt="LogoWebsite" style="max-width: 20px; height: auto;"></span>
-            <span class="app-brand-text edu text-heading fw-bold">{{config('settings.site_name')}}</span>
-          </a>
-        </div>
-        <!-- /Logo -->
-        {!! $policy !!}
-      </div>
+<section class="section-py first-section-pt help-center-header position-relative overflow-hidden" style="background-color: rgb(32, 44, 69); padding-bottom: 20px;">
+  <h1 class="text-center text-white fw-semibold">سياسة الخصوصية</h1>
+  <p class="text-center text-white px-4 mb-0">نلتزم بحماية خصوصيتك وبياناتك الشخصية</p>
+</section>
+
+<div class="container px-4 mt-4">
+  <ol class="breadcrumb breadcrumb-style2" aria-label="breadcrumbs">
+    <li class="breadcrumb-item">
+      <a href="{{ route('home') }}">
+        <i class="ti ti-home-check"></i>{{ __('home') }}
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">سياسة الخصوصية</li>
+  </ol>
+  <div class="progress mt-2">
+    <div class="progress-bar" role="progressbar" style="width: 100%;"></div>
+  </div>
+</div>
+
+<div class="container mt-4">
+  <div class="card">
+    <div class="card-body">
+      {!! $policy !!}
+    </div>
+  </div>
+
+  <div class="content-footer text-center py-4 bg-light mt-4">
+    <div class="social-icons">
+      <a href="{{ config('settings.facebook') }}" class="me-2"><i class="ti ti-brand-facebook"></i></a>
+      <a href="{{ config('settings.twitter') }}" class="me-2"><i class="ti ti-brand-twitter"></i></a>
+      <a href="{{ config('settings.tiktok') }}" class="me-2"><i class="ti ti-brand-tiktok"></i></a>
+      <a href="{{ config('settings.linkedin') }}" class="me-2"><i class="ti ti-brand-linkedin"></i></a>
+      <a href="{{ config('settings.whatsapp') }}"><i class="ti ti-brand-whatsapp"></i></a>
     </div>
   </div>
 </div>

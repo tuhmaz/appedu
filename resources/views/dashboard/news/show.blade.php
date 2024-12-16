@@ -15,11 +15,11 @@ use Illuminate\Support\Str;
                 <div class="card">
                     <div class="card-header bg-light d-flex justify-content-between align-items-center">
                         <h4 class="card-title mb-0">
-                            <i class="fas fa-eye"></i> {{ $news->title }}
+                            <i class="ti ti-eye"></i> {{ $news->title }}
                         </h4>
                         <!-- زر الرجوع مع إضافة الدولة -->
                         <a href="{{ route('news.index', ['country' => request('country', 'jordan')]) }}" class="btn btn-outline-primary">
-                            <i class="fas fa-arrow-left"></i> {{ __('Back to List') }}
+                            <i class="ti ti-arrow-left"></i> {{ __('Back to List') }}
                         </a>
                     </div>
                     <div class="card-body">
@@ -54,13 +54,13 @@ use Illuminate\Support\Str;
                         <div class="d-flex justify-content-between mt-4">
                             <!-- تعديل الرابط لإضافة الدولة -->
                             <a href="{{ route('news.edit', ['news' => $news->id, 'country' => request('country', 'jordan')]) }}" class="btn btn-warning flex-fill me-2">
-                                <i class="fas fa-edit"></i> {{ __('Edit') }}
+                                <i class="ti ti-edit"></i> {{ __('Edit') }}
                             </a>
                             <form action="{{ route('news.destroy', ['news' => $news->id, 'country' => request('country', 'jordan')]) }}" method="POST" class="d-inline flex-fill ms-2">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-danger w-100" onclick="return confirm('{{ __('Are you sure you want to delete this news?') }}');">
-                                    <i class="fas fa-trash-alt"></i> {{ __('Delete') }}
+                                    <i class="ti ti-trash"></i> {{ __('Delete') }}
                                 </button>
                             </form>
                         </div>

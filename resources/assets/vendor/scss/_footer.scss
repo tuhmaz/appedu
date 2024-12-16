@@ -1,0 +1,64 @@
+// Footer Background Gradient
+.landing-footer {
+  position: relative;
+  
+  .footer-top {
+    background: #282c3e;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #282c3e;
+      z-index: -1;
+    }
+  }
+
+  // Dark mode styles
+  .dark-layout & {
+    .footer-top {
+      background: #282c3e;
+    }
+  }
+}
+
+// Footer text colors
+.footer-text {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.footer-title {
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+  color: #ffffff;
+}
+
+.footer-logo-description {
+  opacity: 0.85;
+  max-width: 450px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.footer-link {
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  transition: color 0.2s ease;
+  
+  &:hover {
+    color: #ffffff;
+    text-decoration: none;
+  }
+}
+
+// Footer bottom styles
+.footer-bottom {
+  background: rgba(0, 0, 0, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  
+  .footer-bottom-text {
+    color: rgba(255, 255, 255, 0.7);
+  }
+}

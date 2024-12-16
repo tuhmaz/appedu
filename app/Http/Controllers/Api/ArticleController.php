@@ -3,213 +3,183 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Article;
-use App\Models\Subject;
-use App\Models\Semester;
-use App\Models\SchoolClass;
-use App\Models\File;
-use App\Models\User;
 use App\Models\Keyword;
-use App\Notifications\ArticleNotification;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\DB;
-use OneSignal;
+use Illuminate\Support\Facades\Auth;
 
+/**
+ * @OA\Get(
+ *     path="/api/articles",
+ *     tags={"Articles"},
+ *     summary="Get paginated list of articles",
+ *     @OA\Parameter(
+ *         name="country",
+ *         in="query",
+ *         description="Country code (e.g., jordan, saudi, egypt, palestine)",
+ *         required=false,
+ *         @OA\Schema(type="string")
+ *     ),
+ *     @OA\Parameter(
+ *         name="search",
+ *         in="query",
+ *         description="Search query",
+ *         required=false,
+ *         @OA\Schema(type="string")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(
+ *                 property="status",
+ *                 type="string",
+ *                 example="success"
+ *             ),
+ *             @OA\Property(
+ *                 property="data",
+ *                 type="array",
+ *                 @OA\Items(ref="#/components/schemas/Article")
+ *             ),
+ *             @OA\Property(
+ *                 property="meta",
+ *                 type="object",
+ *                 @OA\Property(
+ *                     property="current_page",
+ *                     type="integer",
+ *                     example=1
+ *                 ),
+ *                 @OA\Property(
+ *                     property="last_page",
+ *                     type="integer",
+ *                     example=1
+ *                 ),
+ *                 @OA\Property(
+ *                     property="per_page",
+ *                     type="integer",
+ *                     example=25
+ *                 ),
+ *                 @OA\Property(
+ *                     property="total",
+ *                     type="integer",
+ *                     example=100
+ *                 )
+ *             )
+ *         )
+ *     )
+ * )
+ */
 class ArticleController extends Controller
 {
-    private function getConnection(string $country): string
-    {
-        return match ($country) {
-            'saudi' => 'sa',
-            'egypt' => 'eg',
-            'palestine' => 'ps',
-            default => 'jo',
-        };
-    }
-
     public function index(Request $request)
     {
+        $query = Article::query()->with(['keywords', 'author']);
+
+        // Filter by country
         $country = $request->input('country', 'jordan');
-        $connection = $this->getConnection($country);
+        $query->where('country', $country);
 
-        $articles = Article::on($connection)
-            ->with(['schoolClass', 'subject', 'semester', 'keywords'])
-            ->paginate(25);
+        // Search functionality
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('content', 'like', "%{$search}%");
+            });
+        }
 
-        return response()->json($articles);
+        $articles = $query->latest()->paginate(25);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $articles->items(),
+            'meta' => [
+                'current_page' => $articles->currentPage(),
+                'last_page' => $articles->lastPage(),
+                'per_page' => $articles->perPage(),
+                'total' => $articles->total()
+            ]
+        ]);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/articles",
+     *     tags={"Articles"},
+     *     summary="Create a new article",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"title", "content", "country"},
+     *             @OA\Property(property="title", type="string", example="Introduction to Mathematics"),
+     *             @OA\Property(property="content", type="string", example="This article explains basic mathematics concepts."),
+     *             @OA\Property(
+     *                 property="country",
+     *                 type="string",
+     *                 example="jordan",
+     *                 enum={"jordan", "saudi", "egypt", "palestine"}
+     *             ),
+     *             @OA\Property(
+     *                 property="keywords",
+     *                 type="array",
+     *                 @OA\Items(type="string", example="math")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Article created successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="status",
+     *                 type="string",
+     *                 example="success"
+     *             ),
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string",
+     *                 example="Article created successfully"
+     *             ),
+     *             @OA\Property(
+     *                 property="data",
+     *                 ref="#/components/schemas/Article"
+     *             )
+     *         )
+     *     )
+     * )
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'class_id' => 'required|exists:school_classes,id',
-            'subject_id' => 'required|exists:subjects,id',
-            'semester_id' => 'required|exists:semesters,id',
-            'title' => 'required|string|max:60',
-            'content' => 'required',
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'country' => 'required|string|in:jordan,saudi,egypt,palestine',
             'keywords' => 'nullable|string',
-            'file_category' => 'required|string',
-            'file' => 'nullable|file',
-            'meta_description' => 'nullable|string|max:120',
         ]);
 
-        $country = $request->input('country', 'jordan');
-        $connection = $this->getConnection($country);
-
-        DB::connection($connection)->transaction(function () use ($request, $validated, $country, $connection) {
-
-            $metaDescription = $request->meta_description;
-
-            if ($request->use_title_for_meta && !$metaDescription) {
-                $metaDescription = Str::limit($request->title, 120);
-            }
-
-            if ($request->use_keywords_for_meta && !$metaDescription && $request->keywords) {
-                $metaDescription = Str::limit($request->keywords, 120);
-            }
-
-            if (!$metaDescription) {
-                $metaDescription = Str::limit(strip_tags($request->content), 120);
-            }
-
-            $article = Article::on($connection)->create([
-                'grade_level' => $request->class_id,
-                'subject_id' => $request->subject_id,
-                'semester_id' => $request->semester_id,
-                'title' => $request->title,
-                'content' => $request->content,
-                'meta_description' => $metaDescription,
-                'author_id' => Auth::id(),
-            ]);
-
-            if ($request->keywords) {
-                $keywords = array_map('trim', explode(',', $request->keywords));
-
-                foreach ($keywords as $keyword) {
-                    $keywordModel = Keyword::on($connection)->firstOrCreate(['keyword' => $keyword]);
-                    $article->keywords()->attach($keywordModel->id);
-                }
-            }
-
-            if ($request->hasFile('file')) {
-                $schoolClass = SchoolClass::on($connection)->find($request->class_id);
-                $folderName = $schoolClass ? $schoolClass->grade_name : 'General';
-                $folderCategory = Str::slug($request->file_category);
-
-                $country = $request->input('country', 'default_country');
-                $originalFilename = $request->file('file')->getClientOriginalName();
-                $filename = $request->input('file_Name') ? $request->input('file_Name') : $originalFilename;
-
-                $folderNameSlug = Str::slug($folderName);
-                $countrySlug = Str::slug($country);
-
-                $folderPath = "files/$countrySlug/$folderNameSlug/$folderCategory";
-                $path = $request->file('file')->storeAs($folderPath, $filename, 'public');
-
-                File::on($connection)->create([
-                    'article_id' => $article->id,
-                    'file_path' => $path,
-                    'file_type' => $request->file('file')->getClientOriginalExtension(),
-                    'file_category' => $request->file_category,
-                    'file_Name' => $filename,
-                ]);
-            }
-            OneSignal::sendNotificationToAll([
-              'headings' => ['en' => "New Article Published"],
-              'contents' => ['en' => "Click to read the latest article!"],
-              'url' => url("/articles/{$article->id}") // رابط المقالة
-          ]);
-            $users = User::all();
-            foreach ($users as $user) {
-                $user->notify(new ArticleNotification($article));
-            }
-        });
-
-        return response()->json(['message' => 'Article created successfully'], 201);
-    }
-
-    public function show(Request $request, $id)
-    {
-        $country = $request->input('country', 'jordan');
-        $connection = $this->getConnection($country);
-        $article = Article::on($connection)->with(['files', 'subject', 'semester', 'schoolClass', 'keywords'])->findOrFail($id);
-        $article->increment('visit_count');
-
-        return response()->json($article);
-    }
-
-    public function update(Request $request, $id)
-    {
-        $validated = $request->validate([
-            'class_id' => 'required|exists:school_classes,id',
-            'subject_id' => 'required|exists:subjects,id',
-            'semester_id' => 'required|exists:semesters,id',
-            'title' => 'required|string|max:60',
-            'content' => 'required',
-            'keywords' => 'nullable|string',
-            'file_category' => 'required|string',
-            'file' => 'nullable|file',
-            'meta_description' => 'nullable|string|max:120',
+        $article = Article::create([
+            'title' => $validated['title'],
+            'content' => $validated['content'],
+            'country' => $validated['country'],
+            'author_id' => Auth::id(),
         ]);
 
-        $country = $request->input('country', 'jordan');
-        $connection = $this->getConnection($country);
-
-        $article = Article::on($connection)->findOrFail($id);
-
-        $metaDescription = $request->meta_description;
-        if (!$metaDescription) {
-            if ($request->keywords) {
-                $metaDescription = Str::limit($request->keywords, 120);
-            } else {
-                $metaDescription = Str::limit(strip_tags($request->content), 120);
+        if (!empty($validated['keywords'])) {
+            $keywords = explode(',', $validated['keywords']);
+            foreach ($keywords as $keyword) {
+                $keywordModel = Keyword::firstOrCreate(['keyword' => trim($keyword)]);
+                $article->keywords()->attach($keywordModel->id);
             }
         }
 
-        $article->update([
-            'subject_id' => $request->subject_id,
-            'semester_id' => $request->semester_id,
-            'title' => $request->title,
-            'content' => $request->content,
-            'meta_description' => $metaDescription,
-        ]);
+        $article->load(['keywords', 'author']);
 
-        return response()->json(['message' => 'Article updated successfully']);
-    }
-
-    public function destroy(Request $request, $id)
-    {
-        $country = $request->input('country', 'jordan');
-        $connection = $this->getConnection($country);
-
-        $article = Article::on($connection)->with('files')->findOrFail($id);
-
-        foreach ($article->files as $file) {
-            if (Storage::disk('public')->exists($file->file_path)) {
-                Storage::disk('public')->delete($file->file_path);
-            }
-            $file->delete();
-        }
-
-        $article->delete();
-
-        return response()->json(['message' => 'Article and associated files deleted successfully']);
-    }
-
-    public function indexByClass(Request $request, $grade_level)
-    {
-        $country = $request->input('country', 'jordan');
-        $connection = $this->getConnection($country);
-
-        $articles = Article::on($connection)
-            ->whereHas('subject', function ($query) use ($grade_level) {
-                $query->where('grade_level', $grade_level);
-            })
-            ->get();
-
-        return response()->json($articles);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Article created successfully',
+            'data' => $article
+        ], 201);
     }
 }

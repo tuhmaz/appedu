@@ -1,0 +1,1391 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Education Platform API",
+        "description": "API documentation for the Education Platform. This API provides comprehensive endpoints for managing educational content including articles, users, and files.",
+        "contact": {
+            "name": "Support Team",
+            "email": "support@alemedu.com"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://127.0.0.1:8000",
+            "description": "API Server"
+        }
+    ],
+    "paths": {
+        "/api/articles": {
+            "get": {
+                "tags": [
+                    "Articles"
+                ],
+                "summary": "Get paginated list of articles",
+                "operationId": "b54354b9d8893e0fd7ca77070deb56b5",
+                "parameters": [
+                    {
+                        "name": "country",
+                        "in": "query",
+                        "description": "Country code (e.g., jordan, saudi, egypt, palestine)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Article"
+                                            }
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "current_page": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "last_page": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "per_page": {
+                                                    "type": "integer",
+                                                    "example": 25
+                                                },
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 100
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Articles"
+                ],
+                "summary": "Create a new article",
+                "operationId": "75bdc5f953261e6f34852386c9b522c0",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "title",
+                                    "content",
+                                    "country"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Introduction to Mathematics"
+                                    },
+                                    "content": {
+                                        "type": "string",
+                                        "example": "This article explains basic mathematics concepts."
+                                    },
+                                    "country": {
+                                        "type": "string",
+                                        "enum": [
+                                            "jordan",
+                                            "saudi",
+                                            "egypt",
+                                            "palestine"
+                                        ],
+                                        "example": "jordan"
+                                    },
+                                    "keywords": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "example": "math"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Article created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Article created successfully"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Article"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/grade-one": {
+            "get": {
+                "tags": [
+                    "Grade One"
+                ],
+                "summary": "Get list of first grade content",
+                "operationId": "d3a1a693d16627dd77ca41fb89d1d299",
+                "parameters": [
+                    {
+                        "name": "subject",
+                        "in": "query",
+                        "description": "Filter by subject",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "unit",
+                        "in": "query",
+                        "description": "Filter by unit",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search in title and description",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/GradeOne"
+                                            }
+                                        },
+                                        "current_page": {
+                                            "type": "integer"
+                                        },
+                                        "total": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Grade One"
+                ],
+                "summary": "Create new first grade content",
+                "operationId": "0ec4b82b5f78da65adaa541333069388",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/GradeOneRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Content created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GradeOne"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/grade-one/{id}": {
+            "get": {
+                "tags": [
+                    "Grade One"
+                ],
+                "summary": "Get first grade content by ID",
+                "operationId": "543c1185fa7f9580bbb9131f230b4eb9",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Content ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GradeOne"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Content not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Grade One"
+                ],
+                "summary": "Update first grade content",
+                "operationId": "0e8602f0014daedacaef4822c5cdc120",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Content ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/GradeOneRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Content updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GradeOne"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Content not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Grade One"
+                ],
+                "summary": "Delete first grade content",
+                "operationId": "955f546c446d9b5c09e890e3748b6d75",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Content ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Content deleted successfully"
+                    },
+                    "404": {
+                        "description": "Content not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/grade-one/{id}/attachment": {
+            "post": {
+                "tags": [
+                    "Grade One"
+                ],
+                "summary": "Upload attachment for first grade content",
+                "operationId": "651086be58a8ad23ec469f39974d4281",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Content ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "attachment": {
+                                        "description": "Attachment file",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Attachment uploaded successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "attachment": {
+                                            "type": "string"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/grade-one/{id}/attachment/{filename}": {
+            "delete": {
+                "tags": [
+                    "Grade One"
+                ],
+                "summary": "Delete attachment from first grade content",
+                "operationId": "62c45ed3882a79c69a53ed7520953a43",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Content ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "filename",
+                        "in": "path",
+                        "description": "Attachment filename",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Attachment deleted successfully"
+                    },
+                    "404": {
+                        "description": "Content or attachment not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/users": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get list of users with filters",
+                "operationId": "566aed8efb436ca506e0ef51a032ecd9",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search by name or email",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "role",
+                        "in": "query",
+                        "description": "Filter by role",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "admin",
+                                "editor",
+                                "user"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/User"
+                                            }
+                                        },
+                                        "current_page": {
+                                            "type": "integer"
+                                        },
+                                        "total": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Create a new user",
+                "operationId": "be551c1d694a01c164966f58bfa77013",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/users/{id}": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get user by ID",
+                "operationId": "6f51bd5fa2dddcd25e44cfa53dcbd10a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "User ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update user",
+                "operationId": "070e37fc9aff78ae73860751bc990ed3",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "User ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password"
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "enum": [
+                                            "admin",
+                                            "editor",
+                                            "user"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Delete user",
+                "operationId": "0b4133ed462528a5e648b88ead11e929",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "User ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User deleted successfully"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/users/change-password": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Change user password",
+                "operationId": "e3efe22d03ce113f7ecdd8406f2fabaf",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "current_password",
+                                    "new_password",
+                                    "new_password_confirmation"
+                                ],
+                                "properties": {
+                                    "current_password": {
+                                        "type": "string",
+                                        "format": "password"
+                                    },
+                                    "new_password": {
+                                        "type": "string",
+                                        "format": "password"
+                                    },
+                                    "new_password_confirmation": {
+                                        "type": "string",
+                                        "format": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password changed successfully"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/users/profile": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get user profile",
+                "operationId": "1ab615e69483636a835d4680956bb15c",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update user profile",
+                "operationId": "53e8804f42df72054bb2ced447b18a09",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "phone": {
+                                        "type": "string"
+                                    },
+                                    "job_title": {
+                                        "type": "string"
+                                    },
+                                    "gender": {
+                                        "type": "string"
+                                    },
+                                    "country": {
+                                        "type": "string"
+                                    },
+                                    "bio": {
+                                        "type": "string"
+                                    },
+                                    "social_links": {
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Profile updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/users/avatar": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Upload user avatar",
+                "operationId": "4bbb33f6839c46be4f258ec98604b9e9",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "avatar": {
+                                        "description": "Avatar image file",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Avatar uploaded successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "avatar": {
+                                            "type": "string"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Delete user avatar",
+                "operationId": "a8a9b6c848eff614ff7933925a1887a8",
+                "responses": {
+                    "200": {
+                        "description": "Avatar deleted successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/users/{id}/avatar": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get user avatar",
+                "operationId": "fcfad32aece6110015ee9b8f2c901c3a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "User ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User avatar URL",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "avatar": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Article": {
+                "title": "Article",
+                "description": "Article object schema",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "Introduction to Mathematics"
+                    },
+                    "content": {
+                        "type": "string",
+                        "example": "This article explains basic mathematics concepts."
+                    },
+                    "country": {
+                        "description": "Country code (jordan, saudi, egypt, palestine)",
+                        "type": "string",
+                        "example": "jordan"
+                    },
+                    "author": {
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "name": {
+                                "type": "string",
+                                "example": "John Doe"
+                            },
+                            "email": {
+                                "type": "string",
+                                "example": "john@example.com"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-06-15T10:00:00Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-06-15T10:00:00Z"
+                    },
+                    "keywords": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "example": "math"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "GradeOne": {
+                "title": "Grade One",
+                "description": "Grade One object schema",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "Mathematics"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "First grade mathematics curriculum"
+                    },
+                    "subject": {
+                        "type": "string",
+                        "example": "math"
+                    },
+                    "unit": {
+                        "type": "string",
+                        "example": "Numbers and Operations"
+                    },
+                    "lesson": {
+                        "type": "string",
+                        "example": "Addition"
+                    },
+                    "content": {
+                        "type": "string",
+                        "example": "Detailed lesson content..."
+                    },
+                    "video_url": {
+                        "type": "string",
+                        "example": "https://example.com/video.mp4"
+                    },
+                    "attachments": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "order": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "GradeOneRequest": {
+                "title": "Grade One Request",
+                "description": "Grade One request schema",
+                "required": [
+                    "title",
+                    "subject",
+                    "unit",
+                    "lesson",
+                    "content"
+                ],
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "example": "Mathematics"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "First grade mathematics curriculum"
+                    },
+                    "subject": {
+                        "type": "string",
+                        "example": "math"
+                    },
+                    "unit": {
+                        "type": "string",
+                        "example": "Numbers and Operations"
+                    },
+                    "lesson": {
+                        "type": "string",
+                        "example": "Addition"
+                    },
+                    "content": {
+                        "type": "string",
+                        "example": "Detailed lesson content..."
+                    },
+                    "video_url": {
+                        "type": "string",
+                        "example": "https://example.com/video.mp4"
+                    },
+                    "attachments": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "order": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "example": true
+                    }
+                },
+                "type": "object"
+            },
+            "User": {
+                "title": "User",
+                "description": "User object schema",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "john@example.com"
+                    },
+                    "role": {
+                        "type": "string",
+                        "enum": [
+                            "admin",
+                            "editor",
+                            "user"
+                        ],
+                        "example": "user"
+                    },
+                    "avatar": {
+                        "type": "string",
+                        "example": "users/avatar-1.jpg"
+                    },
+                    "phone": {
+                        "type": "string",
+                        "example": "+1234567890"
+                    },
+                    "job_title": {
+                        "type": "string",
+                        "example": "Software Engineer"
+                    },
+                    "gender": {
+                        "type": "string",
+                        "enum": [
+                            "male",
+                            "female",
+                            "other"
+                        ],
+                        "example": "male"
+                    },
+                    "country": {
+                        "type": "string",
+                        "example": "United States"
+                    },
+                    "bio": {
+                        "type": "string",
+                        "example": "A passionate developer..."
+                    },
+                    "social_links": {
+                        "type": "object",
+                        "example": {
+                            "twitter": "https://twitter.com/johndoe",
+                            "linkedin": "https://linkedin.com/in/johndoe"
+                        }
+                    },
+                    "is_online": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "UserRequest": {
+                "title": "User Request",
+                "description": "User request schema",
+                "required": [
+                    "name",
+                    "email",
+                    "password"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "john@example.com"
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password",
+                        "example": "secret123"
+                    },
+                    "role": {
+                        "type": "string",
+                        "enum": [
+                            "admin",
+                            "editor",
+                            "user"
+                        ],
+                        "example": "user"
+                    },
+                    "phone": {
+                        "type": "string",
+                        "example": "+1234567890"
+                    },
+                    "job_title": {
+                        "type": "string",
+                        "example": "Software Engineer"
+                    },
+                    "gender": {
+                        "type": "string",
+                        "enum": [
+                            "male",
+                            "female",
+                            "other"
+                        ],
+                        "example": "male"
+                    },
+                    "country": {
+                        "type": "string",
+                        "example": "United States"
+                    },
+                    "bio": {
+                        "type": "string",
+                        "example": "A passionate developer..."
+                    },
+                    "social_links": {
+                        "type": "object",
+                        "example": {
+                            "twitter": "https://twitter.com/johndoe",
+                            "linkedin": "https://linkedin.com/in/johndoe"
+                        }
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Articles",
+            "description": "API Endpoints for managing articles"
+        },
+        {
+            "name": "Grade One",
+            "description": "API Endpoints for managing first grade content"
+        },
+        {
+            "name": "Users",
+            "description": "API Endpoints for managing users"
+        }
+    ]
+}

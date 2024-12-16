@@ -83,7 +83,6 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
-        // التحقق من الحقول الأساسية
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
@@ -91,42 +90,53 @@ class UserController extends Controller
             'job_title' => 'nullable|string|max:100',
             'gender' => 'nullable|in:male,female',
             'country' => 'nullable|string|max:100',
-            'social_links' => 'nullable|string|max:255',
+            'facebook_username' => 'nullable|string|max:255',
             'bio' => 'nullable|string',
             'profile_photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'is_online' => 'boolean',
         ]);
 
-        // تحديث المعلومات الأساسية
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->phone = $request->phone;
-        $user->job_title = $request->job_title;
-        $user->gender = $request->gender;
-        $user->country = $request->country;
-        $facebookUsername = $request->input('facebook_username');
-         $user->social_links = 'https://facebook.com/' . $facebookUsername;
-        $user->bio = $request->bio;
+        try {
+            // تحديث البيانات الأساسية
+            $userData = [
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'job_title' => $request->job_title,
+                'gender' => $request->gender,
+                'country' => $request->country,
+                'social_links' => $request->facebook_username ? 'https://facebook.com/' . $request->facebook_username : null,
+                'bio' => $request->bio,
+            ];
 
+            // معالجة الصورة الشخصية
+            if ($request->hasFile('profile_photo')) {
+                // التأكد من وجود المجلد
+                if (!Storage::disk('public')->exists('profile_photos')) {
+                    Storage::disk('public')->makeDirectory('profile_photos');
+                }
 
-        // معالجة وتحديث الصورة الرمزية
-        if ($request->hasFile('profile_photo')) {
-            if ($user->profile_photo_path) {
-                Storage::delete($user->profile_photo_path);
+                // حذف الصورة القديمة إذا وجدت
+                if ($user->profile_photo_path) {
+                    Storage::disk('public')->delete($user->profile_photo_path);
+                }
+
+                // تخزين الصورة الجديدة
+                $path = $request->file('profile_photo')->store('profile_photos', 'public');
+                if (!$path) {
+                    throw new \Exception('Failed to store profile photo');
+                }
+                $userData['profile_photo_path'] = $path;
             }
-            $path = $request->file('profile_photo')->store('profile_photos');
-            $user->profile_photo_path = $path;
+
+            // تحديث بيانات المستخدم
+            $user->update($userData);
+
+            return redirect()->route('users.index')->with('success', 'User information updated successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Failed to update user: ' . $e->getMessage());
         }
-        if ($request->hasFile('profile_photo')) {
-          $path = $request->file('profile_photo')->store('profile-photos', 'public');
-          $user->profile_photo_path = $path;
-          $user->save();
-      }
-
-        // حفظ التحديثات
-        $user->save();
-
-        return redirect()->route('users.index')->with('success', 'User information updated successfully.');
     }
 
 
@@ -218,6 +228,86 @@ class UserController extends Controller
 
             $user->notify(new RoleAssigned(null, $permission, 'assigned'));
             Log::info("Notification sent for permission {$permission} assigned to user {$user->name}");
+        }
+    }
+
+    /**
+     * تحديث الصورة الشخصية للمستخدم
+     */
+    public function updateProfilePhoto(Request $request, User $user)
+    {
+        $request->validate([
+            'profile_photo' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        try {
+            \Log::info('Starting profile photo update for user: ' . $user->id);
+            
+            // التأكد من وجود المجلد
+            if (!Storage::disk('public')->exists('profile_photos')) {
+                Storage::disk('public')->makeDirectory('profile_photos');
+            }
+
+            // حذف الصورة القديمة إذا وجدت
+            if ($user->profile_photo_path) {
+                \Log::info('Deleting old photo: ' . $user->profile_photo_path);
+                Storage::disk('public')->delete($user->profile_photo_path);
+            }
+
+            // تخزين الصورة الجديدة
+            $path = $request->file('profile_photo')->store('profile_photos', 'public');
+            \Log::info('New photo stored at: ' . $path);
+            
+            if (!$path) {
+                throw new \Exception('Failed to store profile photo');
+            }
+
+            // تحديث مسار الصورة في قاعدة البيانات
+            $updated = $user->update(['profile_photo_path' => $path]);
+            \Log::info('Database update result: ' . ($updated ? 'success' : 'failed'));
+
+            if (!$updated) {
+                throw new \Exception('Failed to update database record');
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile photo updated successfully',
+                'path' => Storage::url($path)
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Profile photo update failed: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update profile photo: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * حذف المستخدم المحدد من قاعدة البيانات
+     *
+     * @param  \App\Models\User  $user
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(User $user)
+    {
+        try {
+            // حذف الصورة الشخصية إذا وجدت
+            if ($user->profile_photo_path) {
+                Storage::disk('public')->delete($user->profile_photo_path);
+            }
+
+            // حذف المستخدم
+            $user->delete();
+
+            return redirect()
+                ->route('users.index')
+                ->with('success', __('User deleted successfully'));
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('users.index')
+                ->with('error', __('Failed to delete user: ') . $e->getMessage());
         }
     }
 

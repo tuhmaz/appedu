@@ -2,17 +2,16 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Fortify\TwoFactorAuthenticatable;
-use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Jetstream\HasProfilePhoto;
+use Laravel\Fortify\TwoFactorAuthenticatable;
 
-
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens;
     use HasFactory;
@@ -31,7 +30,7 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-     'name', 'email','google_id', 'password', 'phone', 'job_title', 'gender', 'country', 'social_links', 'bio', 'is_online'
+     'name', 'email', 'password', 'role', 'google_id', 'phone', 'job_title', 'gender', 'country', 'social_links', 'bio', 'is_online', 'profile_photo_path'
     ];
 
     /**

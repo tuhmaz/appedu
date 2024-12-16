@@ -20,6 +20,7 @@ class UpdateUserStatus
         $user = $event->user;
         if ($user) {
             $user->status = 'offline';
+            $user->last_seen_at = now();
             $user->save();
         }
     }

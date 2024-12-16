@@ -7,39 +7,52 @@ use App\Http\Controllers\Controller;
 use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+
 
 class SocialAuthController extends Controller
 {
-    public function redirectToGoogle()
-    {
-        return Socialite::driver('google')->redirect();
-    }
+  public function redirectToGoogle()
+  {
+    return Socialite::driver('google')->redirect();
+  }
 
-    public function handleGoogleCallback()
-    {
-      $googleUser = Socialite::driver('google')->stateless()->user();
+  public function handleGoogleCallback()
+  {
+      try {
+          $googleUser = Socialite::driver('google')->stateless()->user();
 
-     $user = User::where('email', $googleUser->getEmail())
-                ->orWhere('google_id', $googleUser->getId())
-                ->first();
+          Log::info('Google User:', [
+              'name' => $googleUser->getName(),
+              'email' => $googleUser->getEmail(),
+              'google_id' => $googleUser->getId(),
+          ]);
 
-     if (!$user) {
-        $user = User::create([
-            'name' => $googleUser->getName(),
-            'email' => $googleUser->getEmail(),
-            'google_id' => $googleUser->getId(),
-            'password' => bcrypt('password'),
-        ]);
-    } else {
-         if (is_null($user->google_id)) {
-            $user->update([
-                'google_id' => $googleUser->getId(),
-            ]);
-        }
-    }
+          $user = User::where('email', $googleUser->getEmail())
+                      ->orWhere('google_id', $googleUser->getId())
+                      ->first();
 
-     Auth::login($user);
+          if (!$user) {
+               Log::info('Creating new user for Google User:', [
+                  'name' => $googleUser->getName(),
+                  'email' => $googleUser->getEmail(),
+              ]);
 
-     return redirect()->intended('/home');
-    }
+              $user = User::create([
+                  'name' => $googleUser->getName(),
+                  'email' => $googleUser->getEmail(),
+                  'google_id' => $googleUser->getId(),
+                  'password' => bcrypt('password'),
+              ]);
+          }
+
+           Auth::login($user);
+
+          return redirect()->intended('/');
+      } catch (\Exception $e) {
+          Log::error('Authentication failed:', ['error' => $e->getMessage()]);
+          return redirect('/login')->withErrors(['message' => 'Authentication failed, please try again.']);
+      }
+  }
+
 }

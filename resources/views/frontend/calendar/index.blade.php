@@ -64,7 +64,7 @@
     </div>
   </div>
 </div>
-<div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
+<div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" data-bs-backdrop="static">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">

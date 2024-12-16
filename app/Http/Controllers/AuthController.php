@@ -87,12 +87,33 @@ class AuthController extends Controller
 
     public function logout()
     {
+        // تحديث حالة المستخدم إلى offline
+        $user = auth()->user();
+        if ($user) {
+            $user->status = 'offline';
+            $user->last_seen_at = now();
+            $user->save();
+        }
+
+        // حذف التوكن الحالي
         $token = auth()->user()->currentAccessToken();
-        $token->delete();
+        if ($token) {
+            $token->delete();
+        }
+
+        // تنظيف الجلسة والكوكيز
+        auth()->guard('web')->logout();
+        session()->flush();
+        session()->regenerate();
+
+        // حذف كوكيز تذكرني
+        if (isset($_COOKIE['remember_web'])) {
+            setcookie('remember_web', '', time() - 3600, '/');
+        }
 
         return response()->json([
             "status" => true,
-            "message" => "User Logged out successfully"
+            "message" => "تم تسجيل الخروج بنجاح"
         ]);
     }
 }

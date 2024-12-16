@@ -23,11 +23,11 @@ use Illuminate\Support\Str;
                         </div>
                     </div>
                     <div class="clearfix mb-3">
-                        <a href="{{ route('messages.index') }}" class="btn btn-primary px-3 my-2 light"><i class="fa fa-reply"></i></a>
+                        <a href="{{ route('messages.index') }}" class="btn btn-primary px-3 my-2 light"><i class="ti ti-arrow-back"></i></a>
                         <form action="{{ route('messages.delete', $message->id) }}" method="POST" class="d-inline">
                             @csrf
                             @method('DELETE')
-                            <button class="btn btn-primary px-3 my-2 light" type="submit"><i class="fa fa-trash"></i></button>
+                            <button class="btn btn-primary px-3 my-2 light" type="submit"><i class="ti ti-trash"></i></button>
                         </form>
                     </div>
                 </div>

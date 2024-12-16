@@ -1,0 +1,11 @@
+// Import custom styles
+@import 'footer';
+@import 'home';
+
+// Additional global styles can be added here
+
+// Optimize LCP elements
+[data-lcp] {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 100px;
+}

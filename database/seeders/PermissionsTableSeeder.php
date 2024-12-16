@@ -8,78 +8,34 @@ use Illuminate\Support\Carbon;
 
 class PermissionsTableSeeder extends Seeder
 {
-  public function run()
-  {
-    $timestamp = Carbon::now();
+    public function run()
+    {
+        $timestamp = Carbon::now();
 
-    DB::table('permissions')->insert([
-      [
-        'name' => 'manage roles',
-        'guard_name' => 'sanctum',
-        'created_at' => $timestamp,
-        'updated_at' => $timestamp,
-      ],
-      [
-        'name' => 'manage permissions',
-        'guard_name' => 'sanctum',
-        'created_at' => $timestamp,
-        'updated_at' => $timestamp,
-      ],
-      [
-        'name' => 'manage classes',
-        'guard_name' => 'sanctum',
-        'created_at' => $timestamp,
-        'updated_at' => $timestamp,
-      ],
-      [
-        'name' => 'manage subjects',
-        'guard_name' => 'sanctum',
-        'created_at' => $timestamp,
-        'updated_at' => $timestamp,
-      ],
-      [
-        'name' => 'manage semesters',
-        'guard_name' => 'sanctum',
-        'created_at' => $timestamp,
-        'updated_at' => $timestamp,
-      ],
-      [
-        'name' => 'manage articles',
-        'guard_name' => 'sanctum',
-        'created_at' => $timestamp,
-        'updated_at' => $timestamp,
-      ],
-      [
-        'name' => 'manage news',
-        'guard_name' => 'sanctum',
-        'created_at' => $timestamp,
-        'updated_at' => $timestamp,
-      ],
-      [
-        'name' => 'manage settings',
-        'guard_name' => 'sanctum',
-        'created_at' => $timestamp,
-        'updated_at' => $timestamp,
-      ],
-      [
-        'name' => 'manage sitemap',
-        'guard_name' => 'sanctum',
-        'created_at' => $timestamp,
-        'updated_at' => $timestamp,
-      ],
-      [
-        'name' => 'manage calendar',
-        'guard_name' => 'sanctum',
-        'created_at' => $timestamp,
-        'updated_at' => $timestamp,
-      ],
-      [
-        'name' => 'manage Categories',
-        'guard_name' => 'sanctum',
-        'created_at' => $timestamp,
-        'updated_at' => $timestamp,
-      ],
+        $permissions = [
+            'manage roles',
+            'manage permissions',
+            'manage classes',
+            'manage subjects',
+            'manage semesters',
+            'manage articles',
+            'manage news',
+            'manage users',
+            'manage settings',
+            'manage files',
+            'manage comments',
+            'manage keywords',
+            'manage events',
+            'manage sitemap'
+        ];
 
-    ]);
-  }
+        foreach ($permissions as $permission) {
+            DB::table('permissions')->insert([
+                'name' => $permission,
+                'guard_name' => 'web',
+                'created_at' => $timestamp,
+                'updated_at' => $timestamp,
+            ]);
+        }
+    }
 }

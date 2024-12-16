@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Article;
 use App\Models\News;
 use Illuminate\Http\Request;
+use Spatie\Permission\Models\Role;
 
 class DashboardController extends Controller
 {
@@ -33,9 +34,12 @@ class DashboardController extends Controller
         $latestArticles = Article::latest()->take(10)->get();
         $latestNews = News::latest()->take(10)->get();
 
-        // جلب عدد المستخدمين بناءً على الأدوار باستخدام حزمة Spatie
-        $adminsCount = User::role('Admin')->count();
-        $supervisorsCount = User::role('Supervisor')->count();
+        // جلب عدد المستخدمين حسب الأدوار
+        $adminRole = Role::where('name', 'Admin')->where('guard_name', 'web')->first();
+        $supervisorRole = Role::where('name', 'Supervisor')->where('guard_name', 'web')->first();
+
+        $adminsCount = $adminRole ? User::role($adminRole)->count() : 0;
+        $supervisorsCount = $supervisorRole ? User::role($supervisorRole)->count() : 0;
 
         // جلب البيانات من قواعد البيانات الفرعية
         $countries = ['saudi', 'egypt', 'palestine'];

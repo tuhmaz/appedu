@@ -3,178 +3,417 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\GradeOne;
 use Illuminate\Http\Request;
-use App\Models\Subject;
-use App\Models\SchoolClass;
-use App\Models\Semester;
-use App\Models\Article;
-use App\Models\File;
-use App\Models\User;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
+/**
+ * @OA\Tag(
+ *     name="Grade One",
+ *     description="API Endpoints for managing first grade content"
+ * )
+ */
 class GradeOneController extends Controller
 {
-    public function setDatabase(Request $request)
+    /**
+     * @OA\Get(
+     *     path="/api/grade-one",
+     *     tags={"Grade One"},
+     *     summary="Get list of first grade content",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="subject",
+     *         in="query",
+     *         description="Filter by subject",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="unit",
+     *         in="query",
+     *         description="Filter by unit",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="search",
+     *         in="query",
+     *         description="Search in title and description",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="Page number",
+     *         required=false,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/GradeOne")
+     *             ),
+     *             @OA\Property(property="current_page", type="integer"),
+     *             @OA\Property(property="total", type="integer")
+     *         )
+     *     )
+     * )
+     */
+    public function index(Request $request)
     {
-        $request->validate([
-            'database' => 'required|string|in:jo,sa,eg,ps'
+        $query = GradeOne::query();
+
+        // Filter by subject
+        if ($request->has('subject')) {
+            $query->where('subject', $request->input('subject'));
+        }
+
+        // Filter by unit
+        if ($request->has('unit')) {
+            $query->where('unit', $request->input('unit'));
+        }
+
+        // Search in title and description
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        // Order by order field and then by created date
+        $query->orderBy('order', 'asc')
+              ->orderBy('created_at', 'desc');
+
+        return $query->paginate(10);
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/grade-one",
+     *     tags={"Grade One"},
+     *     summary="Create new first grade content",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/GradeOneRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Content created successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/GradeOne")
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error"
+     *     )
+     * )
+     */
+    public function store(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'subject' => 'required|string|max:50',
+            'unit' => 'required|string|max:100',
+            'lesson' => 'required|string|max:100',
+            'content' => 'required|string',
+            'video_url' => 'nullable|url',
+            'attachments' => 'nullable|array',
+            'attachments.*' => 'string',
+            'order' => 'nullable|integer|min:1',
+            'is_active' => 'boolean'
         ]);
 
-        $request->session()->put('database', $request->input('database'));
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
 
-        return response()->json(['message' => 'Database connection set successfully']);
+        $gradeOne = GradeOne::create($request->all());
+
+        return response()->json($gradeOne, 201);
     }
 
-    private function getConnection(Request $request, $database = null)
+    /**
+     * @OA\Get(
+     *     path="/api/grade-one/{id}",
+     *     tags={"Grade One"},
+     *     summary="Get first grade content by ID",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Content ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/GradeOne")
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Content not found"
+     *     )
+     * )
+     */
+    public function show($id)
     {
-        return $database ?? $request->query('database', 'jo');
+        $gradeOne = GradeOne::find($id);
+        
+        if (!$gradeOne) {
+            return response()->json(['message' => 'Content not found'], 404);
+        }
+
+        return response()->json($gradeOne);
     }
 
-
-    public function index(Request $request, $database)
+    /**
+     * @OA\Put(
+     *     path="/api/grade-one/{id}",
+     *     tags={"Grade One"},
+     *     summary="Update first grade content",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Content ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/GradeOneRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Content updated successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/GradeOne")
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Content not found"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error"
+     *     )
+     * )
+     */
+    public function update(Request $request, $id)
     {
-        $connection = $this->getConnection($request, $database);
+        $gradeOne = GradeOne::find($id);
+        
+        if (!$gradeOne) {
+            return response()->json(['message' => 'Content not found'], 404);
+        }
 
-        $lesson = SchoolClass::on($connection)->get();
-        $classes = SchoolClass::on($connection)->get();
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'subject' => 'required|string|max:50',
+            'unit' => 'required|string|max:100',
+            'lesson' => 'required|string|max:100',
+            'content' => 'required|string',
+            'video_url' => 'nullable|url',
+            'attachments' => 'nullable|array',
+            'attachments.*' => 'string',
+            'order' => 'nullable|integer|min:1',
+            'is_active' => 'boolean'
+        ]);
 
-        return response()->json(['lesson' => $lesson, 'classes' => $classes, 'database' => $connection]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $gradeOne->update($request->all());
+
+        return response()->json($gradeOne);
     }
 
-    public function show(Request $request, $database, $id)
-        {
-        $database = $this->getConnection($request);
-        $class = SchoolClass::on($database)->findOrFail($id);
-
-        return response()->json($class);
-    }
-
-    public function showSubject(Request $request, $database, $id)
+    /**
+     * @OA\Delete(
+     *     path="/api/grade-one/{id}",
+     *     tags={"Grade One"},
+     *     summary="Delete first grade content",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Content ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Content deleted successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Content not found"
+     *     )
+     * )
+     */
+    public function destroy($id)
     {
-        // استعادة الاتصال المناسب لقاعدة البيانات باستخدام الدالة المساعدة
-        $connection = $this->getConnection($request, $database);
+        $gradeOne = GradeOne::find($id);
+        
+        if (!$gradeOne) {
+            return response()->json(['message' => 'Content not found'], 404);
+        }
 
-        // جلب المادة من قاعدة البيانات المحددة
-        $subject = Subject::on($connection)->findOrFail($id);
+        // Delete any associated files if needed
+        if (!empty($gradeOne->attachments)) {
+            foreach ($gradeOne->attachments as $attachment) {
+                if (Storage::disk('public')->exists($attachment)) {
+                    Storage::disk('public')->delete($attachment);
+                }
+            }
+        }
 
-        // جلب مستوى الصف للمادة المحددة
-        $gradeLevel = $subject->grade_level;
+        $gradeOne->delete();
 
-        // جلب الفصول الدراسية المرتبطة بالمستوى الدراسي للمادة
-        $semesters = Semester::on($connection)->where('grade_level', $gradeLevel)->get();
+        return response()->json(['message' => 'Content deleted successfully']);
+    }
 
-        // إرجاع الرد على هيئة JSON يحتوي على المعلومات المطلوبة
+    /**
+     * @OA\Post(
+     *     path="/api/grade-one/{id}/attachment",
+     *     tags={"Grade One"},
+     *     summary="Upload attachment for first grade content",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Content ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="attachment",
+     *                     type="string",
+     *                     format="binary",
+     *                     description="Attachment file"
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Attachment uploaded successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="attachment", type="string"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error"
+     *     )
+     * )
+     */
+    public function uploadAttachment(Request $request, $id)
+    {
+        $gradeOne = GradeOne::find($id);
+        
+        if (!$gradeOne) {
+            return response()->json(['message' => 'Content not found'], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'attachment' => 'required|file|max:10240' // Max 10MB
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        // Store attachment
+        $attachmentName = 'grade-one/' . Str::random(40) . '.' . $request->attachment->extension();
+        $request->attachment->storeAs('public', $attachmentName);
+
+        // Update content attachments
+        $attachments = $gradeOne->attachments ?? [];
+        $attachments[] = $attachmentName;
+        $gradeOne->attachments = $attachments;
+        $gradeOne->save();
+
         return response()->json([
-            'subject' => $subject,
-            'semesters' => $semesters,
-            'database' => $connection
+            'attachment' => Storage::url($attachmentName),
+            'message' => 'Attachment uploaded successfully'
         ]);
     }
 
-    public function subjectArticles(Request $request, $subjectId, $semesterId, $category)
+    /**
+     * @OA\Delete(
+     *     path="/api/grade-one/{id}/attachment/{filename}",
+     *     tags={"Grade One"},
+     *     summary="Delete attachment from first grade content",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Content ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="filename",
+     *         in="path",
+     *         description="Attachment filename",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Attachment deleted successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Content or attachment not found"
+     *     )
+     * )
+     */
+    public function deleteAttachment($id, $filename)
     {
-        $database = $this->getConnection($request);
-
-        $articles = Article::on($database)
-            ->where('subject_id', $subjectId)
-            ->where('semester_id', $semesterId)
-            ->whereHas('files', function ($query) use ($category) {
-                $query->where('file_category', $category);
-            })
-            ->with(['files' => function ($query) use ($category) {
-                $query->where('file_category', $category);
-            }])
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
-
-        return response()->json(['articles' => $articles]);
-    }
-
-    public function showArticle(Request $request, $database, $id)
-    {
-        // استعادة الاتصال المناسب لقاعدة البيانات باستخدام الدالة المساعدة
-        $connection = $this->getConnection($request, $database);
-
-        // جلب المقالة من قاعدة البيانات المحددة مع العلاقات المرتبطة
-        $article = Article::on($connection)->with(['subject', 'semester', 'schoolClass', 'keywords', 'files'])->findOrFail($id);
-
-        // جلب أول ملف متعلق بالمقالة لتحديد الفئة
-        $file = $article->files->first();
-        $category = $file ? $file->file_category : 'articles';
-
-        // الحصول على العلاقات الخاصة بالمقالة
-        $subject = $article->subject;
-        $semester = $article->semester;
-
-        // التحقق من وجود مستوى الصف بشكل صحيح
-        $grade_level = $subject && $subject->schoolClass ? $subject->schoolClass->grade_name : 'N/A';
-
-        // زيادة عدد الزيارات للمقالة
-        $article->increment('visit_count');
-
-        // جلب معلومات المؤلف من قاعدة البيانات الرئيسية
-        $author = User::on('jo')->find($article->author_id);
-
-        // استبدال الكلمات الدلالية بروابط
-        $contentWithKeywords = $this->replaceKeywordsWithLinks($article->content, $article->keywords);
-        $article->content = $this->createInternalLinks($article->content, $article->keywords);
-
-        // إرجاع الرد على هيئة JSON يحتوي على جميع البيانات المطلوبة
-        return response()->json([
-            'article' => $article,
-            'subject' => $subject,
-            'semester' => $semester,
-            'grade_level' => $grade_level,
-            'category' => $category,
-            'author' => $author,
-            'contentWithKeywords' => $contentWithKeywords
-        ]);
-    }
-        private function createInternalLinks($content, $keywords)
-    {
-        $keywordsArray = $keywords->pluck('keyword')->toArray();
-
-        foreach ($keywordsArray as $keyword) {
-            $keyword = trim($keyword);
-            $database = session('database', 'jo');
-            $url = route('keywords.indexByKeyword', ['database' => $database, 'keywords' => $keyword]);
-            $content = str_replace($keyword, '<a href="' . $url . '">' . $keyword . '</a>', $content);
+        $gradeOne = GradeOne::find($id);
+        
+        if (!$gradeOne) {
+            return response()->json(['message' => 'Content not found'], 404);
         }
 
-        return $content;
-    }
+        $attachments = $gradeOne->attachments ?? [];
+        $key = array_search($filename, $attachments);
 
-    private function replaceKeywordsWithLinks($content, $keywords)
-    {
-        foreach ($keywords as $keyword) {
-            $keywordText = $keyword->keyword;
-            $database = session('database', 'jo');
-            $keywordLink = route('keywords.indexByKeyword', ['database' => $database, 'keywords' => $keywordText]);
-            $content = preg_replace('/\b' . preg_quote($keywordText, '/') . '\b/', '<a href="' . $keywordLink . '">' . $keywordText . '</a>', $content);
+        if ($key === false) {
+            return response()->json(['message' => 'Attachment not found'], 404);
         }
 
-        return $content;
-    }
-
-    public function downloadFile(Request $request, $database, $id)
-    {
-        // استعادة الاتصال المناسب لقاعدة البيانات باستخدام الدالة المساعدة
-        $connection = $this->getConnection($request, $database);
-
-        // جلب الملف من قاعدة البيانات المحددة
-        $file = File::on($connection)->findOrFail($id);
-
-        // زيادة عدد مرات التحميل للملف
-        $file->increment('download_count');
-
-        // تكوين المسار الكامل للملف في التخزين العام
-        $filePath = storage_path('app/public/' . $file->file_path);
-
-        // التحقق من وجود الملف في التخزين
-        if (file_exists($filePath)) {
-            return response()->download($filePath, $file->file_Name);
+        // Delete file
+        if (Storage::disk('public')->exists($filename)) {
+            Storage::disk('public')->delete($filename);
         }
 
-        // إرجاع رسالة خطأ إذا لم يتم العثور على الملف
-        return response()->json(['error' => 'File not found'], 404);
+        // Remove from attachments array
+        unset($attachments[$key]);
+        $gradeOne->attachments = array_values($attachments);
+        $gradeOne->save();
+
+        return response()->json(['message' => 'Attachment deleted successfully']);
     }
-  }
+}

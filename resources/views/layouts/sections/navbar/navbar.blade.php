@@ -288,14 +288,14 @@ $navbarDetached = ($navbarDetached ?? '');
         @if (Auth::check())
             <li>
                 <div class="d-grid px-2 pt-2 pb-1">
-                    <a class="btn btn-sm btn-danger d-flex" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                        <small class="align-middle">Logout</small>
-                        <i class="ti ti-logout ms-2 ti-14px"></i>
-                    </a>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="btn btn-sm btn-danger d-flex align-items-center w-100">
+                            <small class="align-middle">Logout</small>
+                            <i class="ti ti-logout ms-2 ti-14px"></i>
+                        </button>
+                    </form>
                 </div>
-                <form method="POST" id="logout-form" action="{{ route('logout') }}">
-                    @csrf
-                </form>
             </li>
         @else
             <li>

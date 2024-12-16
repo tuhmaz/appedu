@@ -3,12 +3,21 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
-use Laravel\Passport\Passport;
+use App\Http\Middleware\SecurityHeadersMiddleware;
+use App\Http\Middleware\PerformanceMonitorMiddleware;
 use App\Models\Article;
 use App\Observers\ArticleObserver;
 use App\Models\News;
 use App\Observers\NewsObserver;
+use Laravel\Passport\Passport;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -44,6 +53,53 @@ class AppServiceProvider extends ServiceProvider
 
         // Register the observer for News model
         News::observe(NewsObserver::class);
-    }
 
+        if (config('app.env') === 'production') {
+            URL::forceScheme('https');
+        }
+
+        Schema::defaultStringLength(191);
+
+        // إضافة ماكرو للكاش التلقائي للاستعلامات
+        Builder::macro('cacheFor', function ($minutes = 60) {
+            $key = 'query_' . md5(json_encode([
+                $this->toSql(),
+                $this->getBindings(),
+                auth()->id()
+            ]));
+
+            return Cache::remember($key, now()->addMinutes($minutes), function () {
+                return $this->get();
+            });
+        });
+
+        // تحسين أداء قاعدة البيانات
+        DB::listen(function ($query) {
+            if ($query->time > 100) { // تسجيل الاستعلامات التي تستغرق أكثر من 100 مللي ثانية
+                Log::warning('Slow Query: ' . $query->sql, [
+                    'time' => $query->time,
+                    'bindings' => $query->bindings
+                ]);
+            }
+        });
+
+        // إضافة ضغط للمحتوى
+        Response::macro('cachedView', function ($view, $data = [], $minutes = 60) {
+            $key = 'view_' . md5($view . serialize($data) . auth()->id());
+            
+            return Cache::remember($key, now()->addMinutes($minutes), function () use ($view, $data) {
+                return response(view($view, $data))
+                    ->header('Content-Encoding', 'gzip')
+                    ->setContent(gzencode(view($view, $data)->render(), 9));
+            });
+        });
+
+        // تطبيق middleware الأمان على جميع الطلبات
+        $this->app['router']->pushMiddlewareToGroup('web', SecurityHeadersMiddleware::class);
+        
+        // تطبيق middleware مراقبة الأداء
+        $this->app['router']->pushMiddlewareToGroup('web', PerformanceMonitorMiddleware::class);
+
+        view()->share('livewireLoaded', false);
+    }
 }
