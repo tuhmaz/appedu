@@ -1,24 +1,65 @@
+# www.robotstxt.org/
+# https://alemedu.com/
+
 User-agent: *
+Allow: /
+Allow: /articles
+Allow: /news
+Allow: /about
+Allow: /contact
+Allow: /sitemap.xml
+
+# المناطق المحظورة
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /api/
+Disallow: /login
+Disallow: /register
+Disallow: /password/
+Disallow: /email/
+Disallow: /users/
+Disallow: /settings/
+Disallow: /*.json$
+Disallow: /*.js$
+Disallow: /*.css$
+Disallow: /*?*
+
+# منع فهرسة المجلدات الخاصة
+Disallow: /storage/
+Disallow: /vendor/
+Disallow: /node_modules/
+Disallow: /bootstrap/
+Disallow: /config/
+Disallow: /database/
+Disallow: /resources/
+Disallow: /tests/
+
+# السماح بفهرسة الصور والملفات العامة
+Allow: /public/assets/img/
+Allow: /public/assets/files/
+Allow: /public/uploads/
+
+# خريطة الموقع
+Sitemap: https://alemedu.com/sitemap.xml
+
+# معدل الزحف
+Crawl-delay: 10
+
+# قواعد خاصة لـ Googlebot
+User-agent: Googlebot
+Allow: /
+Disallow: /dashboard/
+Crawl-delay: 5
+
+# قواعد خاصة لـ Bingbot
+User-agent: Bingbot
+Allow: /
+Disallow: /dashboard/
+Crawl-delay: 5
+
+# منع محركات البحث المحددة
+User-agent: DotBot
 Disallow: /
 
-# السماح بالصفحة الرئيسية
-Allow: /$
-
-# السماح بالوصول إلى المقالات
-Allow: /articles
-Allow: /articles/*
-
-# السماح بالوصول إلى الأخبار
-Allow: /news
-Allow: /news/*
-
-# السماح بالوصول إلى الفصول الدراسية
-Allow: /lesson
-Allow: /lesson/*
-
-# روابط خريطة الموقع
-Sitemap: https://yourdomain.com/sitemap_homepage.xml
-Sitemap: https://yourdomain.com/sitemap_articles.xml
-Sitemap: https://yourdomain.com/sitemap_news.xml
-Sitemap: https://yourdomain.com/sitemap_classes.xml
-Sitemap: https://yourdomain.com/sitemap_keywords.xml
+User-agent: PetalBot
+Disallow: /
