@@ -36,12 +36,12 @@ class XSSProtection
 
         // تكوين CSP للسماح بـ Vite و SCSS
         $csp = "default-src 'self'; " .
-               "script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:* https://localhost:*; " .
-               "style-src 'self' 'unsafe-inline' http://localhost:* https://localhost:*; " .
-               "img-src 'self' data: blob: http://localhost:* https://localhost:*; " .
-               "font-src 'self' data: http://localhost:* https://localhost:*; " .
-               "connect-src 'self' ws://localhost:* http://localhost:* https://localhost:*; " .
-               "media-src 'self' http://localhost:* https://localhost:*; " .
+               "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://alemedu.com; " .
+               "style-src 'self' 'unsafe-inline' https://alemedu.com; " .
+               "img-src 'self' data: blob: https://alemedu.com; " .
+               "font-src 'self' data: https://alemedu.com; " .
+               "connect-src 'self' wss://alemedu.com https://alemedu.com; " .
+               "media-src 'self' https://alemedu.com; " .
                "object-src 'none'; " .
                "base-uri 'self';";
 

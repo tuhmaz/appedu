@@ -40,12 +40,22 @@ return [
       'transport' => 'smtp',
       'url' => env('MAIL_URL'),
       'host' => env('MAIL_HOST', '127.0.0.1'),
-      'port' => env('MAIL_PORT', 2525),
-      'encryption' => env('MAIL_ENCRYPTION', 'tls'),
+      'port' => env('MAIL_PORT', 465),
+      'encryption' => env('MAIL_ENCRYPTION', 'ssl'),
       'username' => env('MAIL_USERNAME'),
       'password' => env('MAIL_PASSWORD'),
       'timeout' => null,
       'local_domain' => env('MAIL_EHLO_DOMAIN'),
+      'verify_peer' => false,
+      'verify_peer_name' => false,
+      'allow_self_signed' => true,
+      'stream' => [
+        'ssl' => [
+          'verify_peer' => false,
+          'verify_peer_name' => false,
+          'allow_self_signed' => true,
+        ],
+      ],
     ],
 
     'ses' => [

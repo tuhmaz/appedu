@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Setting;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class SettingsController extends Controller
 {
@@ -96,5 +99,27 @@ class SettingsController extends Controller
   {
     $robotsPath = base_path('robots.txt');
     file_put_contents($robotsPath, $content);
+  }
+
+  public function testEmail()
+  {
+    try {
+      Mail::raw('This is a test email from ' . config('app.name'), function($message) {
+        $message->to(auth()->user()->email)
+                ->subject('Test Email Configuration');
+      });
+
+      return response()->json([
+        'success' => true,
+        'message' => __('Test email sent successfully! Please check your inbox.')
+      ]);
+    } catch (\Exception $e) {
+      Log::error('Email test failed: ' . $e->getMessage());
+      
+      return response()->json([
+        'success' => false,
+        'message' => __('Failed to send test email: ') . $e->getMessage()
+      ], 500);
+    }
   }
 }

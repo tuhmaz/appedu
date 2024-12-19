@@ -49,18 +49,21 @@ class TrackVisitor
                 ];
             });
             
-            $country = null;
-            $city = null;
+            $country = $locationData['country'] ?? 'Unknown';
+            $city = $locationData['city'] ?? 'Unknown';
             
             if (isset($locationData['status']) && $locationData['status'] === 'success') {
-                $country = $locationData['country'];
-                $city = $locationData['city'];
-                
                 Log::info('Location data retrieved', [
                     'ip' => $ipAddress,
                     'country' => $country,
                     'city' => $city
                 ]);
+            }
+
+            // تحسين معالجة URL الطويل
+            $pageUrl = $request->fullUrl();
+            if (strlen($pageUrl) > 1000) {
+                $pageUrl = substr($pageUrl, 0, 997) . '...';
             }
 
             // Update or create visitor record
@@ -70,7 +73,7 @@ class TrackVisitor
                     'ip_address' => $ipAddress,
                     'last_activity' => now(),
                     'user_agent' => $request->userAgent(),
-                    'page_url' => $request->fullUrl(),
+                    'page_url' => $pageUrl,
                     'device_type' => $this->getDeviceType($request->userAgent()),
                     'response_time' => $responseTime,
                     'country' => $country,

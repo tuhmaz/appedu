@@ -161,6 +161,7 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->group(function () 
     // Settings routes
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index')->middleware('can:manage settings');
     Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update')->middleware('can:manage settings');
+    Route::post('/settings/test-email', [SettingsController::class, 'testEmail'])->name('settings.test.email')->middleware('can:manage settings');
 
     // Error page route
     Route::get('/pages/misc-error', [MiscError::class, 'index'])->name('dashboard.pages-misc-error');
