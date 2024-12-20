@@ -12,6 +12,11 @@ class Authenticate extends Middleware
      */
     protected function redirectTo(Request $request): ?string
     {
+        // السماح بالوصول للمسارات العامة دون إعادة توجيه
+        if ($request->is('api/*/lesson*')) {
+            return null;
+        }
+        
         return $request->expectsJson() ? null : route('login');
     }
 }

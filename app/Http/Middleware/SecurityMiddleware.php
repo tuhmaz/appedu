@@ -18,6 +18,11 @@ class SecurityMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
+        // استثناء المسارات العامة من فحوصات الأمان
+        if ($this->isPublicRoute($request)) {
+            return $next($request);
+        }
+
         // 1. التحقق من صحة الجلسة
         if (Auth::check() && !$this->isValidSession($request)) {
             Auth::logout();
@@ -38,12 +43,14 @@ class SecurityMiddleware
         // 3. إضافة رؤوس أمان إضافية
         $response = $next($request);
         
-        $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
-        $response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
-        $response->headers->set('X-Permitted-Cross-Domain-Policies', 'none');
-        $response->headers->set('Cross-Origin-Embedder-Policy', 'require-corp');
-        $response->headers->set('Cross-Origin-Opener-Policy', 'same-origin');
-        $response->headers->set('Cross-Origin-Resource-Policy', 'same-origin');
+        if (!$this->isPublicRoute($request)) {
+            $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+            $response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
+            $response->headers->set('X-Permitted-Cross-Domain-Policies', 'none');
+            $response->headers->set('Cross-Origin-Embedder-Policy', 'require-corp');
+            $response->headers->set('Cross-Origin-Opener-Policy', 'same-origin');
+            $response->headers->set('Cross-Origin-Resource-Policy', 'same-origin');
+        }
         
         // 4. منع تخزين الصفحات الحساسة
         if ($this->isSensitivePage($request)) {
@@ -140,5 +147,14 @@ class SecurityMiddleware
         }
 
         return false;
+    }
+
+    /**
+     * التحقق مما إذا كان المسار عاماً
+     */
+    private function isPublicRoute(Request $request): bool
+    {
+        return $request->is('api/*/lesson*') || 
+               $request->is('api/*/news*');
     }
 }

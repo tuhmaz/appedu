@@ -170,7 +170,7 @@
       "name": "Categories",
       "icon": "menu-icon tf-icons ti ti-tags",
       "slug": "app-categories",
-      "permission": "manage categories",
+      "permission": "manage Categories",
       "submenu": [
         {
           "url": "dashboard/categories",

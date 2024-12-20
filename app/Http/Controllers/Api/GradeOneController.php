@@ -3,417 +3,220 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\GradeOne;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use App\Models\Subject;
+use App\Models\SchoolClass;
+use App\Models\Semester;
+use App\Models\Article;
+use App\Models\File;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
 
-/**
- * @OA\Tag(
- *     name="Grade One",
- *     description="API Endpoints for managing first grade content"
- * )
- */
 class GradeOneController extends Controller
 {
-    /**
-     * @OA\Get(
-     *     path="/api/grade-one",
-     *     tags={"Grade One"},
-     *     summary="Get list of first grade content",
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(
-     *         name="subject",
-     *         in="query",
-     *         description="Filter by subject",
-     *         required=false,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="unit",
-     *         in="query",
-     *         description="Filter by unit",
-     *         required=false,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="search",
-     *         in="query",
-     *         description="Search in title and description",
-     *         required=false,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="page",
-     *         in="query",
-     *         description="Page number",
-     *         required=false,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Successful operation",
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(
-     *                 property="data",
-     *                 type="array",
-     *                 @OA\Items(ref="#/components/schemas/GradeOne")
-     *             ),
-     *             @OA\Property(property="current_page", type="integer"),
-     *             @OA\Property(property="total", type="integer")
-     *         )
-     *     )
-     * )
-     */
-    public function index(Request $request)
+    public function index($database): JsonResponse
     {
-        $query = GradeOne::query();
-
-        // Filter by subject
-        if ($request->has('subject')) {
-            $query->where('subject', $request->input('subject'));
-        }
-
-        // Filter by unit
-        if ($request->has('unit')) {
-            $query->where('unit', $request->input('unit'));
-        }
-
-        // Search in title and description
-        if ($request->has('search')) {
-            $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
-            });
-        }
-
-        // Order by order field and then by created date
-        $query->orderBy('order', 'asc')
-              ->orderBy('created_at', 'desc');
-
-        return $query->paginate(10);
-    }
-
-    /**
-     * @OA\Post(
-     *     path="/api/grade-one",
-     *     tags={"Grade One"},
-     *     summary="Create new first grade content",
-     *     security={{"bearerAuth":{}}},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/GradeOneRequest")
-     *     ),
-     *     @OA\Response(
-     *         response=201,
-     *         description="Content created successfully",
-     *         @OA\JsonContent(ref="#/components/schemas/GradeOne")
-     *     ),
-     *     @OA\Response(
-     *         response=422,
-     *         description="Validation error"
-     *     )
-     * )
-     */
-    public function store(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'subject' => 'required|string|max:50',
-            'unit' => 'required|string|max:100',
-            'lesson' => 'required|string|max:100',
-            'content' => 'required|string',
-            'video_url' => 'nullable|url',
-            'attachments' => 'nullable|array',
-            'attachments.*' => 'string',
-            'order' => 'nullable|integer|min:1',
-            'is_active' => 'boolean'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
-        $gradeOne = GradeOne::create($request->all());
-
-        return response()->json($gradeOne, 201);
-    }
-
-    /**
-     * @OA\Get(
-     *     path="/api/grade-one/{id}",
-     *     tags={"Grade One"},
-     *     summary="Get first grade content by ID",
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="Content ID",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Successful operation",
-     *         @OA\JsonContent(ref="#/components/schemas/GradeOne")
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="Content not found"
-     *     )
-     * )
-     */
-    public function show($id)
-    {
-        $gradeOne = GradeOne::find($id);
-        
-        if (!$gradeOne) {
-            return response()->json(['message' => 'Content not found'], 404);
-        }
-
-        return response()->json($gradeOne);
-    }
-
-    /**
-     * @OA\Put(
-     *     path="/api/grade-one/{id}",
-     *     tags={"Grade One"},
-     *     summary="Update first grade content",
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="Content ID",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/GradeOneRequest")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Content updated successfully",
-     *         @OA\JsonContent(ref="#/components/schemas/GradeOne")
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="Content not found"
-     *     ),
-     *     @OA\Response(
-     *         response=422,
-     *         description="Validation error"
-     *     )
-     * )
-     */
-    public function update(Request $request, $id)
-    {
-        $gradeOne = GradeOne::find($id);
-        
-        if (!$gradeOne) {
-            return response()->json(['message' => 'Content not found'], 404);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'subject' => 'required|string|max:50',
-            'unit' => 'required|string|max:100',
-            'lesson' => 'required|string|max:100',
-            'content' => 'required|string',
-            'video_url' => 'nullable|url',
-            'attachments' => 'nullable|array',
-            'attachments.*' => 'string',
-            'order' => 'nullable|integer|min:1',
-            'is_active' => 'boolean'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
-        $gradeOne->update($request->all());
-
-        return response()->json($gradeOne);
-    }
-
-    /**
-     * @OA\Delete(
-     *     path="/api/grade-one/{id}",
-     *     tags={"Grade One"},
-     *     summary="Delete first grade content",
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="Content ID",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Content deleted successfully"
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="Content not found"
-     *     )
-     * )
-     */
-    public function destroy($id)
-    {
-        $gradeOne = GradeOne::find($id);
-        
-        if (!$gradeOne) {
-            return response()->json(['message' => 'Content not found'], 404);
-        }
-
-        // Delete any associated files if needed
-        if (!empty($gradeOne->attachments)) {
-            foreach ($gradeOne->attachments as $attachment) {
-                if (Storage::disk('public')->exists($attachment)) {
-                    Storage::disk('public')->delete($attachment);
-                }
+        try {
+            // التحقق من صحة اسم قاعدة البيانات
+            if (!in_array($database, ['jo', 'sa', 'eg', 'ps'])) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Invalid database name'
+                ], 400);
             }
+
+            // الحصول على البيانات
+            $lessons = SchoolClass::on($database)->get();
+            $classes = SchoolClass::on($database)->get();
+
+            return response()->json([
+                'status' => 'success',
+                'data' => [
+                    'lessons' => $lessons,
+                    'classes' => $classes
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while fetching the data',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $gradeOne->delete();
-
-        return response()->json(['message' => 'Content deleted successfully']);
     }
 
-    /**
-     * @OA\Post(
-     *     path="/api/grade-one/{id}/attachment",
-     *     tags={"Grade One"},
-     *     summary="Upload attachment for first grade content",
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="Content ID",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\MediaType(
-     *             mediaType="multipart/form-data",
-     *             @OA\Schema(
-     *                 @OA\Property(
-     *                     property="attachment",
-     *                     type="string",
-     *                     format="binary",
-     *                     description="Attachment file"
-     *                 )
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Attachment uploaded successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="attachment", type="string"),
-     *             @OA\Property(property="message", type="string")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=422,
-     *         description="Validation error"
-     *     )
-     * )
-     */
-    public function uploadAttachment(Request $request, $id)
+    public function show($database, $id): JsonResponse
     {
-        $gradeOne = GradeOne::find($id);
-        
-        if (!$gradeOne) {
-            return response()->json(['message' => 'Content not found'], 404);
+        try {
+            if (!in_array($database, ['jo', 'sa', 'eg', 'ps'])) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Invalid database name'
+                ], 400);
+            }
+
+            $class = SchoolClass::on($database)->findOrFail($id);
+            
+            return response()->json([
+                'status' => 'success',
+                'data' => $class
+            ], 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Class not found'
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while fetching the data',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $validator = Validator::make($request->all(), [
-            'attachment' => 'required|file|max:10240' // Max 10MB
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
-        // Store attachment
-        $attachmentName = 'grade-one/' . Str::random(40) . '.' . $request->attachment->extension();
-        $request->attachment->storeAs('public', $attachmentName);
-
-        // Update content attachments
-        $attachments = $gradeOne->attachments ?? [];
-        $attachments[] = $attachmentName;
-        $gradeOne->attachments = $attachments;
-        $gradeOne->save();
-
-        return response()->json([
-            'attachment' => Storage::url($attachmentName),
-            'message' => 'Attachment uploaded successfully'
-        ]);
     }
 
-    /**
-     * @OA\Delete(
-     *     path="/api/grade-one/{id}/attachment/{filename}",
-     *     tags={"Grade One"},
-     *     summary="Delete attachment from first grade content",
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="Content ID",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Parameter(
-     *         name="filename",
-     *         in="path",
-     *         description="Attachment filename",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Attachment deleted successfully"
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="Content or attachment not found"
-     *     )
-     * )
-     */
-    public function deleteAttachment($id, $filename)
+    public function showSubject($database, $subject): JsonResponse
     {
-        $gradeOne = GradeOne::find($id);
-        
-        if (!$gradeOne) {
-            return response()->json(['message' => 'Content not found'], 404);
+        try {
+            if (!in_array($database, ['jo', 'sa', 'eg', 'ps'])) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Invalid database name'
+                ], 400);
+            }
+
+            $subject = Subject::on($database)
+                ->with(['semesters', 'articles'])
+                ->findOrFail($subject);
+            
+            return response()->json([
+                'status' => 'success',
+                'data' => $subject
+            ], 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Subject not found'
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while fetching the data',
+                'error' => $e->getMessage()
+            ], 500);
         }
+    }
 
-        $attachments = $gradeOne->attachments ?? [];
-        $key = array_search($filename, $attachments);
+    public function subjectArticles($database, $subject, $semester, $category): JsonResponse
+    {
+        try {
+            if (!in_array($database, ['jo', 'sa', 'eg', 'ps'])) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Invalid database name'
+                ], 400);
+            }
 
-        if ($key === false) {
-            return response()->json(['message' => 'Attachment not found'], 404);
+            $articles = Article::on($database)
+                ->where('subject_id', $subject)
+                ->where('semester_id', $semester)
+                ->whereHas('files', function ($query) use ($category) {
+                    $query->where('file_category', $category);
+                })
+                ->with(['files' => function ($query) use ($category) {
+                    $query->where('file_category', $category);
+                }])
+                ->orderBy('created_at', 'desc')
+                ->paginate(10);
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $articles
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while fetching the articles',
+                'error' => $e->getMessage()
+            ], 500);
         }
+    }
 
-        // Delete file
-        if (Storage::disk('public')->exists($filename)) {
-            Storage::disk('public')->delete($filename);
+    public function showArticle($database, $article): JsonResponse
+    {
+        try {
+            if (!in_array($database, ['jo', 'sa', 'eg', 'ps'])) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Invalid database name'
+                ], 400);
+            }
+
+            $article = Article::on($database)
+                ->with(['subject', 'semester', 'files', 'keywords'])
+                ->findOrFail($article);
+
+            // زيادة عداد الزيارات
+            $article->increment('visit_count');
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $article
+            ], 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Article not found'
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while fetching the article',
+                'error' => $e->getMessage()
+            ], 500);
         }
+    }
 
-        // Remove from attachments array
-        unset($attachments[$key]);
-        $gradeOne->attachments = array_values($attachments);
-        $gradeOne->save();
+    public function downloadFile($database, $id): JsonResponse
+    {
+        try {
+            if (!in_array($database, ['jo', 'sa', 'eg', 'ps'])) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Invalid database name'
+                ], 400);
+            }
 
-        return response()->json(['message' => 'Attachment deleted successfully']);
+            $file = File::on($database)->findOrFail($id);
+            $file->increment('download_count');
+
+            $filePath = storage_path('app/public/' . $file->file_path);
+            if (!file_exists($filePath)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'File not found'
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'data' => [
+                    'file_path' => asset('storage/' . $file->file_path),
+                    'file_name' => $file->file_name,
+                    'download_count' => $file->download_count
+                ]
+            ], 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'File not found'
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while processing the file',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }
