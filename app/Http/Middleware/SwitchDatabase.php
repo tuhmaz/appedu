@@ -7,29 +7,18 @@ use Illuminate\Support\Facades\Config;
 
 class SwitchDatabase
 {
-
     public function handle($request, Closure $next)
     {
-        $selectedCountry = $request->input('country');
+        $database = $request->route('database');
+        $validDatabases = ['jo', 'sa', 'eg', 'ps'];
 
-        switch ($selectedCountry) {
-            case 'sa':
-                Config::set('database.default', 'sa');
-                session(['country' => 'sa']); // تخزين الدولة
-                break;
-            case 'eg':
-                Config::set('database.default', 'eg');
-                session(['country' => 'eg']); // تخزين الدولة
-                break;
-            case 'ps':
-                Config::set('database.default', 'ps');
-                session(['country' => 'ps']); // تخزين الدولة
-                break;
-            default:
-                Config::set('database.default', 'jo');
-                session(['country' => 'jo']);  // إزالة الدولة
-                break;
+        // التحقق من صحة اسم قاعدة البيانات
+        if (!in_array($database, $validDatabases)) {
+            $database = 'jo';
         }
+
+        // تعيين اتصال قاعدة البيانات
+        Config::set('database.default', $database);
 
         return $next($request);
     }

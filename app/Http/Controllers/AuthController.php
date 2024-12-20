@@ -72,6 +72,7 @@ class AuthController extends Controller
             ]);
         }
     }
+
     public function profile()
     {
         $userData = auth()->user(); // تأكد من أن هذا الاستدعاء يتم بشكل صحيح
@@ -83,7 +84,6 @@ class AuthController extends Controller
             "id" => auth()->user()->id // ربما تسبب في الخطأ إذا كان `auth()` لم يكن معرفًا بشكل صحيح
         ]);
     }
-
 
     public function logout()
     {
@@ -114,6 +114,109 @@ class AuthController extends Controller
         return response()->json([
             "status" => true,
             "message" => "تم تسجيل الخروج بنجاح"
+        ]);
+    }
+
+    /**
+     * Handle mobile app login
+     */
+    public function mobileLogin(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+            'device_name' => 'required',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (! $user || ! Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'The provided credentials are incorrect.',
+            ], 401);
+        }
+
+        // Create token for mobile app
+        $token = $user->createToken($request->device_name)->plainTextToken;
+
+        return response()->json([
+            'status' => 'success',
+            'token' => $token,
+            'user' => $user,
+        ]);
+    }
+
+    /**
+     * Handle mobile app registration
+     */
+    public function mobileRegister(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+            'device_name' => 'required',
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+
+        $token = $user->createToken($request->device_name)->plainTextToken;
+
+        return response()->json([
+            'status' => 'success',
+            'token' => $token,
+            'user' => $user,
+        ]);
+    }
+
+    /**
+     * Get user profile
+     */
+    public function mobileProfile(Request $request)
+    {
+        return response()->json([
+            'status' => 'success',
+            'user' => $request->user(),
+        ]);
+    }
+
+    /**
+     * Update user profile
+     */
+    public function updateProfile(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $request->user()->id,
+            'current_password' => 'required_with:new_password',
+            'new_password' => 'nullable|min:8|confirmed',
+        ]);
+
+        $user = $request->user();
+
+        if ($request->has('current_password')) {
+            if (! Hash::check($request->current_password, $user->password)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'The provided current password is incorrect.',
+                ], 401);
+            }
+
+            $user->password = Hash::make($request->new_password);
+        }
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->save();
+
+        return response()->json([
+            'status' => 'success',
+            'user' => $user,
         ]);
     }
 }

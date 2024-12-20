@@ -7,6 +7,7 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import viteCompression from 'vite-plugin-compression';
 import autoprefixer from 'autoprefixer';
 import cssnano from 'cssnano';
+import PurgeIcons from 'vite-plugin-purge-icons';
 
 /**
  * Get Files from a directory
@@ -70,6 +71,13 @@ export default defineConfig({
     }),
     html(),
     libsWindowAssignment(),
+    PurgeIcons({
+      content: [
+        './resources/**/*.blade.php',
+        './resources/**/*.js',
+        './resources/**/*.vue',
+      ],
+    }),
     terser({
       compress: {
         drop_console: true,
@@ -97,6 +105,9 @@ export default defineConfig({
       brotliSize: true,
     }),
   ],
+  css: {
+    postcss: './postcss.config.mjs',
+  },
   build: {
     cssMinify: 'cssnano',
     rollupOptions: {
@@ -135,29 +146,6 @@ export default defineConfig({
     modulePreload: {
       polyfill: true
     }
-  },
-  css: {
-    postcss: {
-      plugins: [
-        autoprefixer,
-        cssnano({
-          preset: ['default', {
-            discardComments: {
-              removeAll: true,
-            },
-            minifyFontValues: {
-              removeQuotes: false,
-            },
-          }],
-        }),
-      ],
-    },
-    preprocessorOptions: {
-      scss: {
-        quietDeps: true,
-      },
-    },
-    devSourcemap: false,
   },
   resolve: {
     alias: {

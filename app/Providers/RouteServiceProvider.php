@@ -30,7 +30,8 @@ class RouteServiceProvider extends ServiceProvider
         $rateLimiter->configureRateLimiting();
 
         $this->routes(function () {
-            Route::middleware(['api', 'api_rate_limit:public_api'])
+            // Public API Routes (No Authentication)
+            Route::middleware(['api_rate_limit:public_api'])
                 ->prefix('api')
                 ->group(base_path('routes/api.php'));
 
