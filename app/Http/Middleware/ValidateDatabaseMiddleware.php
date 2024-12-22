@@ -15,6 +15,11 @@ class ValidateDatabaseMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // Skip database validation for authentication routes
+        if ($request->is('api/login') || $request->is('api/register') || $request->is('api/logout') || $request->is('api/user')) {
+            return $next($request);
+        }
+
         $database = $request->route('database');
         
         if (!in_array($database, ['jo', 'sa', 'eg', 'ps'])) {

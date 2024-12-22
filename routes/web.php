@@ -155,8 +155,13 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->group(function () 
     // News routes
      Route::resource('news', NewsController::class)->middleware(['can:manage news']);
 
-    // Categories News routes
-     Route::resource('categories', CategoryController::class)->middleware(['can:manage Categories']);
+    // Categories Routes
+    Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index')->middleware(['can:manage categories']);
+    Route::get('/categories/create', [CategoryController::class, 'create'])->name('categories.create')->middleware(['can:manage categories']);
+    Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store')->middleware(['can:manage categories']);
+    Route::get('/categories/{id}/edit', [CategoryController::class, 'edit'])->name('categories.edit')->middleware(['can:manage categories']);
+    Route::put('/categories/{id}', [CategoryController::class, 'update'])->name('categories.update')->middleware(['can:manage categories']);
+    Route::delete('/categories/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy')->middleware(['can:manage categories']);
 
     // Settings routes
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index')->middleware('can:manage settings');

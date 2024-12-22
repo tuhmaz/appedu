@@ -8,57 +8,84 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SecurityHeadersMiddleware
 {
+    private array $allowedStaticExtensions = [
+        '.js', '.css', '.scss', '.map', 
+        '.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp',
+        '.woff', '.woff2', '.ttf', '.eot'
+    ];
+
+    private array $bypassPaths = [
+        'login', 'register', 'password/reset', 'password/email', 'logout',
+        'js/*', 'css/*', 'images/*', 'fonts/*', 'assets/*'
+    ];
+
     public function handle(Request $request, Closure $next): Response
     {
         $response = $next($request);
 
-        // السماح بالوصول إلى الملفات الثابتة
+        // التحقق من امتدادات الملفات الثابتة
         $path = $request->path();
-        if (str_contains($path, '.js') || 
-            str_contains($path, '.css') || 
-            str_contains($path, '.scss') || 
-            str_contains($path, '.map') || 
-            str_contains($path, '.jpg') || 
-            str_contains($path, '.png') || 
-            str_contains($path, '.gif') || 
-            str_contains($path, '.woff') || 
-            str_contains($path, '.woff2') || 
-            str_contains($path, '.ttf')) {
+        foreach ($this->allowedStaticExtensions as $extension) {
+            if (str_contains($path, $extension)) {
+                return $response;
+            }
+        }
+
+        // تجاهل المسارات المستثناة
+        if ($request->is($this->bypassPaths)) {
             return $response;
         }
 
-        // تجاهل الرؤوس الأمنية لمسارات المصادقة والملفات الثابتة
-        if ($request->is('login', 'register', 'password/reset', 'password/email', 'logout', 'js/*', 'css/*', 'images/*', 'fonts/*', 'assets/*')) {
-            return $response;
+        // إزالة الرؤوس غير الضرورية
+        $response->headers->remove('X-Powered-By');
+        $response->headers->remove('Server');
+
+        // إضافة رؤوس الأمان الأساسية
+        $headers = [
+            'X-Content-Type-Options' => 'nosniff',
+            'X-Frame-Options' => 'SAMEORIGIN',
+            'X-XSS-Protection' => '1; mode=block',
+            'Strict-Transport-Security' => 'max-age=31536000; includeSubDomains',
+            'Referrer-Policy' => 'strict-origin-when-cross-origin',
+            'Permissions-Policy' => 'camera=(), microphone=(), geolocation=()',
+            'Cross-Origin-Embedder-Policy' => 'require-corp',
+            'Cross-Origin-Opener-Policy' => 'same-origin',
+            'Cross-Origin-Resource-Policy' => 'same-origin'
+        ];
+
+        foreach ($headers as $key => $value) {
+            $response->headers->set($key, $value);
         }
 
-        // إعدادات أساسية للأمان
-        $response->headers->set('X-Content-Type-Options', 'nosniff');
-        $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
-        $response->headers->set('X-XSS-Protection', '1; mode=block');
-        $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
-        $response->headers->set('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';");
-        $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
-        $response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+        // تكوين Content Security Policy
+        $cspDirectives = [
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // نحتاج إلى unsafe-inline/eval للوحة التحكم
+            "style-src 'self' 'unsafe-inline'",
+            "img-src 'self' data: blob:",
+            "font-src 'self' data:",
+            "connect-src 'self'",
+            "media-src 'self'",
+            "object-src 'none'",
+            "base-uri 'self'",
+            "form-action 'self'",
+            "frame-ancestors 'self'"
+        ];
 
-        // إعدادات CORS مرنة
-        if ($request->header('Origin')) {
-            $response->headers->set('Access-Control-Allow-Origin', $request->header('Origin'));
-            $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-            $response->headers->set('Access-Control-Allow-Headers', '*');
-            $response->headers->set('Access-Control-Allow-Credentials', 'true');
-            $response->headers->set('Access-Control-Expose-Headers', '*');
-        }
+        $response->headers->set('Content-Security-Policy', implode('; ', $cspDirectives));
 
-        // تكوين التخزين المؤقت
-        if ($request->is('api/*')) {
-            // لا تخزين مؤقت لطلبات API
-            $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
-            $response->headers->set('Pragma', 'no-cache');
-            $response->headers->set('Expires', '0');
-        } else {
-            // السماح بالتخزين المؤقت للمحتوى الثابت
-            $response->headers->set('Cache-Control', 'public, max-age=31536000');
+        // إعدادات CORS للـ API فقط
+        if ($request->is('api/*') && $request->header('Origin')) {
+            $allowedOrigins = [env('APP_URL', 'https://alemedu.com')];
+            $origin = $request->header('Origin');
+
+            if (in_array($origin, $allowedOrigins)) {
+                $response->headers->set('Access-Control-Allow-Origin', $origin);
+                $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+                $response->headers->set('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Authorization, X-CSRF-TOKEN');
+                $response->headers->set('Access-Control-Allow-Credentials', 'true');
+                $response->headers->set('Access-Control-Max-Age', '86400'); // 24 ساعة
+            }
         }
 
         return $response;

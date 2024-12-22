@@ -10,7 +10,7 @@
                 <h5>
                     <i class="ri-folder-add-line me-2"></i>{{ __('Add New Category') }}
                 </h5>
-                <a href="{{ route('categories.index') }}" class="btn btn-outline-primary mt-3 mt-md-0">
+                <a href="{{ route('categories.index', ['country' => request('country', 'jordan')]) }}" class="btn btn-outline-primary mt-3 mt-md-0">
                     <i class="ri-arrow-left-line me-1"></i>{{ __('Back to Categories') }}
                 </a>
             </div>
@@ -41,10 +41,10 @@
                         <label for="country" class="form-label">{{ __('Select Country') }}</label>
                         <select name="country" class="form-control" required>
                             <option value="">{{ __('Select Country') }}</option>
-                            <option value="jo" {{ old('country') == 'jordan' ? 'selected' : '' }}>Jordan</option>
-                            <option value="sa" {{ old('country') == 'saudi' ? 'selected' : '' }}>Saudi Arabia</option>
-                            <option value="eg" {{ old('country') == 'egypt' ? 'selected' : '' }}>Egypt</option>
-                            <option value="ps" {{ old('country') == 'palestine' ? 'selected' : '' }}>Palestine</option>
+                            <option value="jordan" {{ old('country', request('country')) == 'jordan' ? 'selected' : '' }}>Jordan</option>
+                            <option value="saudi" {{ old('country', request('country')) == 'saudi' ? 'selected' : '' }}>Saudi Arabia</option>
+                            <option value="egypt" {{ old('country', request('country')) == 'egypt' ? 'selected' : '' }}>Egypt</option>
+                            <option value="palestine" {{ old('country', request('country')) == 'palestine' ? 'selected' : '' }}>Palestine</option>
                         </select>
                     </div>
 

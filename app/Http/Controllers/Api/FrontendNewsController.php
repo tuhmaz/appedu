@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 class FrontendNewsController extends Controller
 {
@@ -29,11 +30,16 @@ class FrontendNewsController extends Controller
         try {
             $database = $this->getConnection($request, $database);
             
-            $categories = Category::on($database)
-                ->select('id', 'name', 'slug')
-                ->get();
+            // استخدام Cache للفئات
+            $categories = Cache::remember("categories_{$database}", 3600, function () use ($database) {
+                return Category::on($database)
+                    ->select('id', 'name', 'slug')
+                    ->get();
+            });
 
-            $query = News::on($database)->with('category');
+            $query = News::on($database)
+                ->with(['category', 'author:id,name'])
+                ->select(['id', 'title', 'description', 'image', 'category_id', 'author_id', 'created_at', 'meta_description']);
 
             // فلترة حسب التصنيف
             if ($request->has('category') && !empty($request->input('category'))) {
@@ -44,15 +50,14 @@ class FrontendNewsController extends Controller
 
                 if ($category) {
                     $query->where('category_id', $category->id);
-                } else {
-                    $query->whereNull('category_id');
                 }
             }
 
             // ترتيب الأخبار من الأحدث إلى الأقدم
             $query->orderBy('created_at', 'desc');
 
-            $news = $query->paginate(10);
+            $perPage = min($request->input('per_page', 10), 50); // تحديد عدد العناصر في الصفحة
+            $news = $query->paginate($perPage);
 
             return response()->json([
                 'success' => true,
@@ -76,17 +81,17 @@ class FrontendNewsController extends Controller
         try {
             $database = $this->getConnection($request, $database);
 
-            $news = News::on($database)
-                ->with('category')
-                ->findOrFail($id);
-
-            // جلب المؤلف من قاعدة البيانات الرئيسية
-            $news->author = User::find($news->author_id);
+            // استخدام Cache للخبر الواحد
+            $cacheKey = "news_{$database}_{$id}";
+            $news = Cache::remember($cacheKey, 1800, function () use ($database, $id) {
+                return News::on($database)
+                    ->with(['category:id,name,slug', 'author:id,name'])
+                    ->findOrFail($id);
+            });
 
             // معالجة الكلمات الدلالية
             if ($news->keywords) {
                 $news->description = $this->replaceKeywordsWithLinks($news->description, $news->keywords);
-                $news->description = $this->createInternalLinks($news->description, $news->keywords);
             }
 
             return response()->json([
@@ -100,6 +105,44 @@ class FrontendNewsController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'حدث خطأ أثناء جلب الخبر',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function category(Request $request, $database, $categorySlug)
+    {
+        try {
+            $database = $this->getConnection($request, $database);
+
+            $cacheKey = "category_news_{$database}_{$categorySlug}";
+            
+            return Cache::remember($cacheKey, 1800, function () use ($database, $categorySlug, $request) {
+                $category = Category::on($database)
+                    ->where('slug', $categorySlug)
+                    ->firstOrFail();
+
+                $perPage = min($request->input('per_page', 10), 50);
+                
+                $news = News::on($database)
+                    ->where('category_id', $category->id)
+                    ->with(['category:id,name,slug', 'author:id,name'])
+                    ->select(['id', 'title', 'description', 'image', 'category_id', 'author_id', 'created_at', 'meta_description'])
+                    ->orderBy('created_at', 'desc')
+                    ->paginate($perPage);
+
+                return response()->json([
+                    'success' => true,
+                    'news' => $news,
+                    'category' => $category
+                ]);
+            });
+
+        } catch (\Exception $e) {
+            Log::error('Error in FrontendNewsController@category: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ أثناء جلب الأخبار حسب التصنيف',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -133,109 +176,5 @@ class FrontendNewsController extends Controller
         }
 
         return $description;
-    }
-
-    private function createInternalLinks($description, $keywords)
-    {
-        if (empty($description) || empty($keywords)) {
-            return $description;
-        }
-
-        if (is_string($keywords)) {
-            $keywordsArray = array_map('trim', explode(',', $keywords));
-        } else {
-            $keywordsArray = $keywords->pluck('keyword')->toArray();
-        }
-
-        foreach ($keywordsArray as $keyword) {
-            if (empty($keyword)) continue;
-
-            $database = session('database', 'jo');
-            $url = route('keywords.indexByKeyword', [
-                'database' => $database,
-                'keywords' => $keyword
-            ]);
-            
-            $description = preg_replace(
-                '/\b' . preg_quote($keyword, '/') . '\b/u',
-                '<a href="' . $url . '">' . $keyword . '</a>',
-                $description
-            );
-        }
-
-        return $description;
-    }
-
-    public function category(Request $request, $translatedCategory)
-    {
-        try {
-            $database = $this->getConnection($request);
-
-            $category = Category::on($database)
-                ->where('name', $translatedCategory)
-                ->firstOrFail();
-
-            $categories = Category::on($database)
-                ->select('id', 'name', 'slug')
-                ->get();
-
-            $news = News::on($database)
-                ->where('category_id', $category->id)
-                ->orderBy('created_at', 'desc')
-                ->paginate(10);
-
-            return response()->json([
-                'success' => true,
-                'news' => $news,
-                'categories' => $categories,
-                'category' => $category
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error('Error in FrontendNewsController@category: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'حدث خطأ أثناء جلب الأخبار حسب التصنيف',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    public function filterNewsByCategory(Request $request)
-    {
-        try {
-            $database = $this->getConnection($request);
-            $categorySlug = $request->input('category');
-
-            if (empty($categorySlug)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'يجب تحديد التصنيف'
-                ], 400);
-            }
-
-            $category = Category::on($database)
-                ->where('slug', $categorySlug)
-                ->firstOrFail();
-
-            $news = News::on($database)
-                ->where('category_id', $category->id)
-                ->orderBy('created_at', 'desc')
-                ->paginate(10);
-
-            return response()->json([
-                'success' => true,
-                'news' => $news,
-                'category' => $category
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error('Error in FrontendNewsController@filterNewsByCategory: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'حدث خطأ أثناء فلترة الأخبار',
-                'error' => $e->getMessage()
-            ], 500);
-        }
     }
 }

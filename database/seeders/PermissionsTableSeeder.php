@@ -26,7 +26,8 @@ class PermissionsTableSeeder extends Seeder
             'manage comments',
             'manage keywords',
             'manage events',
-            'manage sitemap'
+            'manage sitemap',
+            'manage categories'
         ];
 
         foreach ($permissions as $permission) {

@@ -45,31 +45,106 @@ class CategoryController extends Controller
             'country' => 'required'
         ]);
 
-        Category::create($request->all());
+        $connection = null;
+        switch ($request->country) {
+            case 'jordan':
+                $connection = 'jo';
+                break;
+            case 'saudi':
+                $connection = 'sa';
+                break;
+            case 'egypt':
+                $connection = 'eg';
+                break;
+            case 'palestine':
+                $connection = 'ps';
+                break;
+            default:
+                return redirect()->back()->withErrors(['country' => 'Invalid country selected']);
+        }
 
-        return redirect()->route('categories.index')->with('success', 'Category created successfully.');
+        Category::on($connection)->create($request->all());
+
+        return redirect()->route('categories.index', ['country' => $request->country])->with('success', 'Category created successfully.');
     }
 
-    public function edit($id)
+    public function edit($id, Request $request)
     {
-        $category = Category::findOrFail($id);
-        return view('dashboard.categories.edit', compact('category'));
+        $country = $request->input('country', 'jordan');
+        $connection = null;
+        switch ($country) {
+            case 'jordan':
+                $connection = 'jo';
+                break;
+            case 'saudi':
+                $connection = 'sa';
+                break;
+            case 'egypt':
+                $connection = 'eg';
+                break;
+            case 'palestine':
+                $connection = 'ps';
+                break;
+            default:
+                return redirect()->back()->withErrors(['country' => 'Invalid country selected']);
+        }
+
+        $category = Category::on($connection)->findOrFail($id);
+        return view('dashboard.categories.edit', compact('category', 'country'));
     }
 
     public function update(Request $request, $id)
     {
-        $category = Category::findOrFail($id);
+        $country = $request->input('country', 'jordan');
+        $connection = null;
+        switch ($country) {
+            case 'jordan':
+                $connection = 'jo';
+                break;
+            case 'saudi':
+                $connection = 'sa';
+                break;
+            case 'egypt':
+                $connection = 'eg';
+                break;
+            case 'palestine':
+                $connection = 'ps';
+                break;
+            default:
+                return redirect()->back()->withErrors(['country' => 'Invalid country selected']);
+        }
+
+        $category = Category::on($connection)->findOrFail($id);
         $category->update($request->all());
 
-        return redirect()->route('categories.index')->with('success', 'Category updated successfully.');
+        return redirect()->route('categories.index', ['country' => $country])->with('success', 'Category updated successfully.');
     }
 
-    public function destroy($id)
+    public function destroy($id, Request $request)
     {
-        $category = Category::findOrFail($id);
+        $country = $request->input('country', 'jordan');
+        $connection = null;
+        switch ($country) {
+            case 'jordan':
+                $connection = 'jo';
+                break;
+            case 'saudi':
+                $connection = 'sa';
+                break;
+            case 'egypt':
+                $connection = 'eg';
+                break;
+            case 'palestine':
+                $connection = 'ps';
+                break;
+            default:
+                return redirect()->back()->withErrors(['country' => 'Invalid country selected']);
+        }
+
+        $category = Category::on($connection)->findOrFail($id);
         $category->delete();
 
-        return redirect()->route('categories.index')->with('success', 'Category deleted successfully.');
+        return redirect()->route('categories.index', ['country' => $country])->with('success', 'Category deleted successfully.');
     }
 
     public function show($database, $category)
