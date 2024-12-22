@@ -20,6 +20,11 @@ class User extends Authenticatable implements MustVerifyEmail
     use TwoFactorAuthenticatable;
     use HasRoles;
 
+    /**
+     * تحديد اتصال قاعدة البيانات الرئيسية للمستخدمين
+     */
+    protected $connection = 'jo';
+
     public function isAdmin()
     {
          return $this->is_admin;

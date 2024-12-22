@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 use App\Models\Event;
+use App\Models\User;
 
 class HomeController extends Controller
 {
@@ -44,11 +45,18 @@ class HomeController extends Controller
       
       // Increase cache duration and eager load relationships
       $news = Cache::remember("news_{$database}", 3600, function () use ($database) {
-          return News::on($database)
-              ->with(['category', 'author'])
+          $newsQuery = News::on($database)
+              ->with('category')
               ->latest()
               ->take(10)
               ->get();
+
+          // تحميل علاقة المؤلف من قاعدة البيانات الرئيسية
+          foreach ($newsQuery as $newsItem) {
+              $newsItem->setRelation('author', User::find($newsItem->author_id));
+          }
+
+          return $newsQuery;
       });
 
       // Cache classes with longer duration
